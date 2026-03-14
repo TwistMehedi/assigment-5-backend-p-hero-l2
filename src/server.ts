@@ -1,14 +1,13 @@
 import app from "./app";
+import { env } from "./config/envConfig";
 import { prisma } from "./lib/prisma";
 
-const port = process.env.PORT || 3000;
 export const boostrap = async () => {
   try {
     await prisma.$connect();
     console.log("Prisma connected database");
-    // app.listen()
-    app.listen(port, async () => {
-      console.log(`Server running on port ${port}`);
+    app.listen(env.PORT, async () => {
+      console.log(`Server running on port ${env.PORT}`);
     });
   } catch (error) {
     await prisma.$disconnect();
