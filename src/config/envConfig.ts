@@ -10,6 +10,8 @@ interface IEnvConfig {
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
   NODE_ENV: string;
+  USER_EMAIL: string;
+  USER_PASS: string;
 }
 
 const validateEnv = [
@@ -18,6 +20,8 @@ const validateEnv = [
   "BETTER_AUTH_SECRET",
   "BETTER_AUTH_URL",
   "NODE_ENV",
+  "USER_EMAIL",
+  "USER_PASS",
 ] as const;
 
 validateEnv.forEach((envVar) => {
@@ -32,6 +36,8 @@ const envConfig = (): IEnvConfig => ({
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
   BETTER_AUTH_URL: process.env.BETTER_AUTH_URL as string,
   NODE_ENV: process.env.NODE_ENV as envarnMent,
+  USER_EMAIL: process.env.USER_EMAIL as string,
+  USER_PASS: process.env.USER_PASS as string,
 });
 
 export const env = envConfig();
