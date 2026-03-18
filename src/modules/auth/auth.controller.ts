@@ -42,7 +42,7 @@ export const otpVerify = TryCatch(async (req, res, next) => {
     createToken,
     refreshToken,
     sessionToken,
-    update,
+    user: update,
   };
   sendResponse(res, 200, "User verified successfully", data);
 });
