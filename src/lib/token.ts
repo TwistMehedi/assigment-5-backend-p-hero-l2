@@ -34,17 +34,3 @@ export const createRefreshToken = (user: IJwtPayload) => {
     },
   );
 };
-
-// export const createSessionToken = (user: IJwtPayload) => {
-//   return jwt.sign(
-//     {
-//       email: user.email,
-//       id: user.id,
-//       role: user.role,
-//     },
-//     env.JWT_SESSION_SECRET,
-//     {
-//       expiresIn: "1d",
-//     },
-//   );
-// };

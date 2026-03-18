@@ -8,8 +8,10 @@ export const errorMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  err.message = err.message || `Internal server error ${err}`;
+  err.message = err.message || `Internal server error`;
   err.statusCode = err.statusCode || 500;
+
+  console.log("ERROR", err);
 
   res.status(err.statusCode).json({
     success: false,
