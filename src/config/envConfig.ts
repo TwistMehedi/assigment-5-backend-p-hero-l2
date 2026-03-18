@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { ErrorHandler } from "../utils/errorHandler";
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ interface IEnvConfig {
   NODE_ENV: string;
   USER_EMAIL: string;
   USER_PASS: string;
+  JWT_SECRET_KEY: string;
+  JWT_REFRESH_SECRET: string;
+  JWT_SESSION_SECRET: string;
 }
 
 const validateEnv = [
@@ -22,11 +26,14 @@ const validateEnv = [
   "NODE_ENV",
   "USER_EMAIL",
   "USER_PASS",
+  "JWT_SECRET_KEY",
+  "JWT_REFRESH_SECRET",
+  "JWT_SESSION_SECRET",
 ] as const;
 
 validateEnv.forEach((envVar) => {
   if (!process.env[envVar]) {
-    throw new Error(`Missing environment variable: ${envVar}`);
+    throw new ErrorHandler(`Missing environment variable: ${envVar}`, 500);
   }
 });
 
@@ -38,6 +45,9 @@ const envConfig = (): IEnvConfig => ({
   NODE_ENV: process.env.NODE_ENV as envarnMent,
   USER_EMAIL: process.env.USER_EMAIL as string,
   USER_PASS: process.env.USER_PASS as string,
+  JWT_SECRET_KEY: process.env.JWT_SECRET_KEY as string,
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
+  JWT_SESSION_SECRET: process.env.JWT_SESSION_SECRET as string,
 });
 
 export const env = envConfig();

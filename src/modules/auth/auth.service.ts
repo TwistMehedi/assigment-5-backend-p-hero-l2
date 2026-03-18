@@ -28,8 +28,6 @@ export const registerService = async (payload: IUser) => {
       throw new ErrorHandler("User not created", 400);
     }
 
-    // console.log(session);
-
     await auth.api.sendVerificationOTP({
       body: {
         email,
@@ -37,10 +35,51 @@ export const registerService = async (payload: IUser) => {
       },
     });
 
-    // console.log(rrr);
     return data;
   } catch (error) {
     console.log("User created error", error);
     await prisma.user.delete({ where: { email } });
+  }
+};
+
+export const verifyOtp = async (payload: { email: string; otp: string }) => {
+  const { email, otp } = payload;
+
+  try {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: {
+        email,
+      },
+    });
+
+    const session = await prisma.session.findFirstOrThrow({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const data = await auth.api.checkVerificationOTP({
+      body: {
+        email: user.email,
+        type: "sign-in",
+        otp,
+      },
+    });
+
+    if (data.success !== true) throw new ErrorHandler("Invalid your OTP", 400);
+
+    const update = await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        emailVerified: true,
+      },
+    });
+
+    return { update, session };
+  } catch (error) {
+    console.log("error", error);
+    throw new ErrorHandler("Invalid your OTP", 400);
   }
 };

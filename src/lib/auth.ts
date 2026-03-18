@@ -12,6 +12,8 @@ export const auth = betterAuth({
 
   plugins: [
     emailOTP({
+      otpLength: 8,
+      expiresIn: 600,
       async sendVerificationOTP({ email, otp, type }) {
         if (type === "sign-in") {
           sendMail(email, otp);
