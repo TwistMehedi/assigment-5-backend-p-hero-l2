@@ -33,7 +33,7 @@ export const sendResponse = <T>(
   }
 
   if (cookies?.sessionToken) {
-    res.cookie("sessionToken", cookies.sessionToken, {
+    res.cookie("better-auth.session_token", cookies.sessionToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       secure: true,

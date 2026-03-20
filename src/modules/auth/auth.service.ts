@@ -1,6 +1,7 @@
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { ErrorHandler } from "../../utils/errorHandler";
+import { Request as ExpressRequest } from "express";
 import { IUser } from "./auth.interface";
 
 export const registerService = async (payload: IUser) => {
@@ -131,54 +132,33 @@ export const passwordChange = async (
     newPassword: string;
     currentPassword: string;
   },
-  id: string,
+  sessionToken: string,
 ) => {
   const { newPassword, currentPassword } = payload;
 
-  if (newPassword.length < 6) {
-    throw new ErrorHandler("Password must be at least 6 characters", 400);
+  const session = await auth.api.getSession({
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
+  });
+
+  if (!session || !session.user) {
+    throw new ErrorHandler("Session not found", 404);
   }
 
-  if (newPassword === currentPassword) {
-    throw new ErrorHandler("New password cannot be same as old password", 400);
-  }
+  // console.log("session eeeeee", session); // akhane cookie log korle ata ase
+  const data = await auth.api.changePassword({
+    body: {
+      currentPassword,
+      newPassword,
+      revokeOtherSessions: true,
+    },
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
+  });
 
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
+  console.log("data", data);
 
-    if (!user) {
-      throw new ErrorHandler("User not found", 404);
-    }
-
-    const session = await prisma.session.findFirst({
-      where: { userId: id },
-    });
-
-    if (!session) {
-      throw new ErrorHandler("Session expired, please login again", 401);
-    }
-
-    const data = await auth.api.changePassword({
-      body: {
-        newPassword,
-        currentPassword,
-        revokeOtherSessions: true,
-      },
-    });
-
-    if (!data) {
-      throw new ErrorHandler("Password change failed", 400);
-    }
-
-    return data;
-  } catch (error: any) {
-    console.log("Password change error:", error);
-
-    if (error instanceof ErrorHandler) {
-      throw error;
-    }
-    throw new ErrorHandler("Something went wrong", 500);
-  }
+  return data;
 };

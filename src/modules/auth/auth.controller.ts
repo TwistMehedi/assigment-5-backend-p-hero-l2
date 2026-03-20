@@ -1,6 +1,7 @@
 import { sendResponse } from "../../helper/sendResponse";
 import { createJwtToken, createRefreshToken } from "../../lib/token";
 import { TryCatch } from "../../utils/TryCatch";
+
 import {
   loginUser,
   passwordChange,
@@ -57,10 +58,10 @@ export const login = TryCatch(async (req, res, next) => {
 });
 
 export const changePassword = TryCatch(async (req, res, next) => {
-  const userId = req.user?.id as string;
   const payload = req.body;
+  const sessionToken = req.cookies["better-auth.session_token"];
 
-  const result = await passwordChange(payload, userId);
+  const result = await passwordChange(payload, sessionToken);
 
   sendResponse(res, 200, "Password changed successfully", result);
 });

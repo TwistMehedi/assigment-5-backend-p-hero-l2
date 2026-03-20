@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { UserRole, UserStatus } from "../generated/prisma";
-import { emailOTP } from "better-auth/plugins";
+import { bearer, emailOTP } from "better-auth/plugins";
 import { sendMail } from "../helper/sendMail";
 
 export const auth = betterAuth({
@@ -11,6 +11,7 @@ export const auth = betterAuth({
   }),
 
   plugins: [
+    bearer(),
     emailOTP({
       otpLength: 8,
       expiresIn: 600,
@@ -27,6 +28,15 @@ export const auth = betterAuth({
     requireEmailVerification: true,
   },
 
+  session: {
+    expiresIn: 60 * 60 * 24,
+    updateAge: 60 * 60 * 24,
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 60 * 24,
+    },
+  },
+
   user: {
     additionalFields: {
       role: {
@@ -39,6 +49,28 @@ export const auth = betterAuth({
         type: "string",
         required: true,
         defaultValue: UserStatus.ACTIVE,
+      },
+    },
+  },
+
+  advanced: {
+    useSecureCookies: false,
+    cookies: {
+      state: {
+        attributes: {
+          sameSite: "lax", // ✅ change
+          secure: false, // ✅ change
+          httpOnly: true,
+          path: "/",
+        },
+      },
+      sessionToken: {
+        attributes: {
+          sameSite: "lax", // ✅ change
+          secure: false, // ✅ change
+          httpOnly: true,
+          path: "/",
+        },
       },
     },
   },

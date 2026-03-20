@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/errorHandler";
 import { env } from "../config/envConfig";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
+import { auth } from "../lib/auth";
+import { UserStatus } from "../generated/prisma";
 
 export const isAuthenticated = async (
   req: Request,
@@ -10,30 +12,77 @@ export const isAuthenticated = async (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies?.token;
+    //   console.log("🍪 cookies:", req.cookies);
+    //   console.log("sessionToken:", req.cookies["better-auth.session_token"]);
+    const sessionToken = req.cookies["better-auth.session_token"];
 
-    if (!token) {
-      return next(new ErrorHandler("Please login first", 401));
+    // ✅ SESSION BASED AUTH
+    if (sessionToken) {
+      const sessionExists = await prisma.session.findFirst({
+        where: {
+          token: sessionToken,
+          expiresAt: { gt: new Date() },
+        },
+        include: { user: true },
+      });
+      // console.log("sessionExists:", sessionExists);
+
+      if (!sessionExists) {
+        return next(
+          new ErrorHandler("Session expired. Please login again", 401),
+        );
+      }
+
+      const user = sessionExists.user;
+
+      // 🔒 user status check
+      if (
+        user.status === UserStatus.BLOCKED ||
+        user.status === UserStatus.SUSPEND
+      ) {
+        return next(new ErrorHandler("Unauthorized! User not active", 401));
+      }
+
+      // ⏳ session refresh warning
+      const now = new Date();
+      const expiresAt = new Date(sessionExists.expiresAt);
+      const createdAt = new Date(sessionExists.createdAt);
+
+      const sessionLifeTime = expiresAt.getTime() - createdAt.getTime();
+      const timeRemaining = expiresAt.getTime() - now.getTime();
+      const percentRemaining = (timeRemaining / sessionLifeTime) * 100;
+
+      if (percentRemaining < 20) {
+        res.setHeader("X-Session-Refresh", "true");
+      }
+
+      req.user = {
+        id: user.id,
+        role: user.role,
+        email: user.email,
+      };
+
+      return next();
     }
 
-    const decoded = jwt.verify(token, env.JWT_SECRET_KEY) as any;
+    // const token = req.cookies?.token;
 
-    if (!decoded?.id) {
-      return next(new ErrorHandler("Invalid token", 401));
-    }
+    // if (!token) {
+    //   return next(new ErrorHandler("Please login first", 401));
+    // }
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-    });
+    // const decoded = jwt.verify(token, env.JWT_SECRET_KEY) as JwtPayload;
 
-    if (!user) {
-      return next(new ErrorHandler("User not found", 404));
-    }
+    // req.user = {
+    //   id: decoded.id,
+    //   role: decoded.role,
+    //   email: decoded.email,
+    // };
 
-    req.user = user;
-
-    next();
+    return next();
   } catch (error) {
+    console.log("❌ Auth Error:", error);
+
     return next(new ErrorHandler("Authentication failed", 401));
   }
 };
