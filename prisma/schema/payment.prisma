@@ -1,0 +1,11 @@
+model Payment {
+  id            String             @id @default(uuid())
+  transactionId String             @unique
+  amount        Float
+  status        String
+  planName      SubscriptionStatus
+  createdAt     DateTime           @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}

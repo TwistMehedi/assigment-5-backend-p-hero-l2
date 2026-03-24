@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { UserRole, UserStatus } from "../generated/prisma";
 import { bearer, emailOTP } from "better-auth/plugins";
 import { sendMail } from "../helper/sendMail";
+import { Role, UserStatus } from "../generated/prisma";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -42,7 +42,7 @@ export const auth = betterAuth({
       role: {
         type: "string",
         required: true,
-        defaultValue: UserRole.USER,
+        defaultValue: Role.USER,
       },
 
       status: {

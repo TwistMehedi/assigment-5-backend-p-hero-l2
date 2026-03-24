@@ -1,0 +1,20 @@
+model Media {
+  id                String      @id @default(uuid())
+  title             String
+  description       String      @db.Text
+  type              ContentType @default(MOVIE)
+  genres            String[]
+  releaseYear       Int
+  director          String
+  cast              String[]
+  streamingPlatform String?
+  isPremium         Boolean     @default(false)
+  videoUrl          String?
+  posterUrl         String?
+  averageRating     Float       @default(0.0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  reviews       Review[]
+  watchlistedBy Watchlist[]
+}

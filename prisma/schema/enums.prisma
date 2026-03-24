@@ -4,8 +4,24 @@ enum UserStatus {
     SUSPEND
 }
 
-enum UserRole {
-    SUPER_ADMIN
-    ADMIN
+enum Role {
     USER
+    ADMIN
+    DIRECTOR
+}
+
+enum SubscriptionStatus {
+    FREE
+    MONTHLY
+    YEARLY
+}
+
+enum ReviewStatus {
+    PENDING
+    PUBLISHED
+}
+
+enum ContentType {
+    MOVIE
+    SERIES
 }

@@ -5,13 +5,14 @@ import { Request as ExpressRequest } from "express";
 import { IUser } from "./auth.interface";
 
 export const registerService = async (payload: IUser) => {
-  const { name, email, password } = payload;
+  const { name, email, password, role } = payload;
   try {
     const data = await auth.api.signUpEmail({
       body: {
         name,
         email,
         password,
+        role,
       },
     });
 
@@ -19,15 +20,16 @@ export const registerService = async (payload: IUser) => {
       throw new ErrorHandler("User not created", 400);
     }
 
-    const session = await prisma.session.findFirst({
-      where: {
-        userId: data.user.id,
-      },
-    });
+    // const session = await prisma.session.findFirst({
+    //   where: {
+    //     userId: data.user.id,
+    //   },
+    // });
 
-    if (!session) {
-      throw new ErrorHandler("User not created", 400);
-    }
+    // console.log(session);
+    // if (!session) {
+    //   throw new ErrorHandler("sessionnot found", 400);
+    // }
 
     await auth.api.sendVerificationOTP({
       body: {
@@ -37,16 +39,16 @@ export const registerService = async (payload: IUser) => {
     });
 
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.log("User created error", error);
 
     try {
       await prisma.user.delete({ where: { email } });
-    } catch (err) {
+    } catch (err: any) {
       console.log("Rollback failed", err);
+      throw new ErrorHandler(err.message, 500);
     }
-
-    throw new ErrorHandler("Registration failed", 500);
+    throw new ErrorHandler(error.message, 500);
   }
 };
 

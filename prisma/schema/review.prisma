@@ -1,0 +1,17 @@
+model Review {
+  id         String       @id @default(uuid())
+  rating     Int
+  content    String       @db.Text
+  hasSpoiler Boolean      @default(false)
+  status     ReviewStatus @default(PENDING)
+  tags       String[]
+  createdAt  DateTime     @default(now())
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId String
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  comments Comment[]
+  likes    ReviewLike[]
+}
