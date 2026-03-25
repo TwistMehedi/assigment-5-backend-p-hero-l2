@@ -108,15 +108,16 @@ export const loginUser = async (payload: {
       },
     });
 
+    console.log("data");
     const data = await auth.api.signInEmail({
       body: {
         email: user.email,
         password,
         rememberMe: true,
-        callbackURL: "https://example.com/callback",
       },
     });
 
+    console.log(data);
     return data;
   } catch (error) {
     console.log("login error", error);
