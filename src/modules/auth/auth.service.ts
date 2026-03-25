@@ -56,17 +56,13 @@ export const verifyOtp = async (payload: { email: string; otp: string }) => {
   const { email, otp } = payload;
 
   try {
-    const user = await prisma.user.findUniqueOrThrow({
-      where: {
-        email,
-      },
+    const user = await prisma.user.findUnique({
+      where: { email },
     });
 
-    const session = await prisma.session.findFirstOrThrow({
-      where: {
-        userId: user.id,
-      },
-    });
+    if (!user) {
+      throw new ErrorHandler("User not found", 404);
+    }
 
     const data = await auth.api.checkVerificationOTP({
       body: {
@@ -87,7 +83,7 @@ export const verifyOtp = async (payload: { email: string; otp: string }) => {
       },
     });
 
-    return { confirmUser, session };
+    return { confirmUser };
   } catch (error) {
     console.log("OTP error", error);
 

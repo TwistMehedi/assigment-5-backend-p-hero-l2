@@ -17,23 +17,8 @@ export const registerUser = TryCatch(async (req, res, next) => {
 
 export const otpVerify = TryCatch(async (req, res, next) => {
   const payload = req.body;
-  const { confirmUser, session } = await verifyOtp(payload);
-
-  const user = {
-    id: confirmUser.id,
-    email: confirmUser.email,
-    role: confirmUser.role,
-  };
-
-  const createToken = await createJwtToken(user);
-  const refreshToken = await createRefreshToken(user);
-  const sessionToken = session.token;
-
-  sendResponse(res, 200, "User verified successfully", confirmUser, {
-    token: createToken,
-    refreshToken,
-    sessionToken,
-  });
+  const { confirmUser } = await verifyOtp(payload);
+  sendResponse(res, 200, "User verified successfully", confirmUser);
 });
 
 export const login = TryCatch(async (req, res, next) => {

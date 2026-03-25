@@ -30,9 +30,7 @@ export const registerSchema = z.object({
     .regex(/[0-9]/, "Must contain at least one number")
     .regex(/[^A-Za-z0-9]/, "Must contain at least one special character"),
 
-  role: z
-    .string()
-    .refine((val) => ["ADMIN", "CUSTOMER", "PROVIDER"].includes(val), {
-      message: "Please select a valid role",
-    }),
+  role: z.string().refine((val) => ["USER", "CREATOR"].includes(val), {
+    message: "Please select a valid role",
+  }),
 });

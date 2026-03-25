@@ -7,7 +7,7 @@ enum UserStatus {
 enum Role {
     USER
     ADMIN
-    DIRECTOR
+    CREATOR
 }
 
 enum SubscriptionStatus {
