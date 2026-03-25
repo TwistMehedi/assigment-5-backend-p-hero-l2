@@ -5,6 +5,8 @@ import { TryCatch } from "../../utils/TryCatch";
 import {
   loginUser,
   passwordChange,
+  passwordForgot,
+  passwordReset,
   registerService,
   verifyOtp,
 } from "./auth.service";
@@ -49,4 +51,20 @@ export const changePassword = TryCatch(async (req, res, next) => {
   const result = await passwordChange(payload, sessionToken);
 
   sendResponse(res, 200, "Password changed successfully", result);
+});
+
+export const forgotPassword = TryCatch(async (req, res, next) => {
+  const payload = req.body;
+
+  const data = await passwordForgot(payload);
+
+  sendResponse(res, 200, "Password reset otp sent to your email", data);
+});
+
+export const resetPassword = TryCatch(async (req, res, next) => {
+  const payload = req.body;
+
+  const data = await passwordReset(payload);
+
+  sendResponse(res, 201, "Password reset successfully", data);
 });

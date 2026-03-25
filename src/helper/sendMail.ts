@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { env } from "../config/envConfig";
 
-export const sendMail = async (email: string, otp: string) => {
+export const sendMail = async (email: string, otp: string, message: string) => {
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -16,7 +16,7 @@ export const sendMail = async (email: string, otp: string) => {
     const info = await transporter.sendMail({
       from: `"Your App Name" <${env.USER_EMAIL}>`,
       to: email,
-      subject: "Verify your email with OTP",
+      subject: message,
       text: `Hello! Your OTP is: ${otp}`,
       html: `<h1>Verify your email</h1><p>Your OTP: <b>${otp}</b></p>`,
     });

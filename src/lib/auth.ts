@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import { bearer, emailOTP } from "better-auth/plugins";
 import { sendMail } from "../helper/sendMail";
 import { Role, UserStatus } from "../generated/prisma";
+import { emailMessage, forgotMessage } from "../helper/mailText";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -16,8 +17,11 @@ export const auth = betterAuth({
       otpLength: 8,
       expiresIn: 600,
       async sendVerificationOTP({ email, otp, type }) {
+        // console.log("OTP Type Received:", type);
         if (type === "sign-in") {
-          sendMail(email, otp);
+          await sendMail(email, otp, emailMessage);
+        } else if (type === "forget-password") {
+          await sendMail(email, otp, forgotMessage);
         }
       },
     }),

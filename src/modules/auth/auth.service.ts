@@ -161,3 +161,46 @@ export const passwordChange = async (
 
   return data;
 };
+
+export const passwordForgot = async (payload: { email: string }) => {
+  const user = await prisma.user.findUnique({
+    where: { email: payload.email },
+  });
+  if (!user) {
+    throw new ErrorHandler("Forgot user not found", 404);
+  }
+
+  const data = await auth.api.requestPasswordResetEmailOTP({
+    body: {
+      email: user.email,
+    },
+  });
+
+  return data;
+};
+
+export const passwordReset = async (payload: {
+  email: string;
+  otp: string;
+  password: string;
+}) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: payload.email,
+    },
+  });
+
+  if (!user) {
+    throw new ErrorHandler("Reset password user not found", 400);
+  }
+
+  const data = await auth.api.resetPasswordEmailOTP({
+    body: {
+      email: user.email,
+      otp: payload.otp,
+      password: payload.password,
+    },
+  });
+
+  return data;
+};
