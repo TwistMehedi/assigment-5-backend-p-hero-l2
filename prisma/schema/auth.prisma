@@ -12,11 +12,12 @@ model User {
     sessions           Session[]
     accounts           Account[]
 
-    reviews   Review[]
-    comments  Comment[]
-    watchlist Watchlist[]
-    payments  Payment[]
-    likes     ReviewLike[]
+    reviews    Review[]
+    comments   Comment[]
+    watchlist  Watchlist[]
+    payments   Payment[]
+    likes      ReviewLike[]
+    categories Categories[]
 
     @@unique([email])
     @@map("user")

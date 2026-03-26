@@ -87,7 +87,7 @@ export const authorizeRoles = (...roles: string[]) => {
       return next(new ErrorHandler("Unauthorized", 401));
     }
 
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req?.user.role)) {
       return next(new ErrorHandler(`Role (${req.user.role}) not allowed`, 403));
     }
 

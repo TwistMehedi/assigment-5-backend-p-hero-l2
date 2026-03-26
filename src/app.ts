@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { errorMiddleware } from "./utils/errorMiddleware";
 import { authRouter } from "./modules/auth/auth.route";
+import { movieRouter } from "./modules/movie/movie.route";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(
 );
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/categories", movieRouter);
 
 app.use(errorMiddleware);
 
