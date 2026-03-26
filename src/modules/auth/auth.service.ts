@@ -204,3 +204,19 @@ export const passwordReset = async (payload: {
 
   return data;
 };
+
+export const sessionService = async (token: string) => {
+  const session = await prisma.session.findFirst({
+    where: {
+      token,
+      expiresAt: { gt: new Date() },
+    },
+    include: { user: true },
+  });
+
+  if (!session) {
+    throw new Error("Session not found");
+  }
+
+  return session;
+};

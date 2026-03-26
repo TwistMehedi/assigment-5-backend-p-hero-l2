@@ -1,5 +1,7 @@
 import { sendResponse } from "../../helper/sendResponse";
+import { auth } from "../../lib/auth";
 import { createJwtToken, createRefreshToken } from "../../lib/token";
+import { ErrorHandler } from "../../utils/errorHandler";
 import { TryCatch } from "../../utils/TryCatch";
 
 import {
@@ -8,6 +10,7 @@ import {
   passwordForgot,
   passwordReset,
   registerService,
+  sessionService,
   verifyOtp,
 } from "./auth.service";
 
@@ -67,4 +70,19 @@ export const resetPassword = TryCatch(async (req, res, next) => {
   const data = await passwordReset(payload);
 
   sendResponse(res, 201, "Password reset successfully", data);
+});
+
+export const getSession = TryCatch(async (req, res, next) => {
+  const token =
+    req.cookies["better-auth.session_token"] ||
+    req.cookies["__Secure-better-auth.session_token"] ||
+    req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return next(new ErrorHandler("Unauthorized", 401));
+  }
+
+  const result = await sessionService(token);
+
+  sendResponse(res, 200, "Session found", result);
 });

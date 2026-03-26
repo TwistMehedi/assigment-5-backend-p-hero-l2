@@ -12,11 +12,8 @@ export const isAuthenticated = async (
   next: NextFunction,
 ) => {
   try {
-    //   console.log("🍪 cookies:", req.cookies);
-    //   console.log("sessionToken:", req.cookies["better-auth.session_token"]);
     const sessionToken = req.cookies["better-auth.session_token"];
 
-    // ✅ SESSION BASED AUTH
     if (sessionToken) {
       const sessionExists = await prisma.session.findFirst({
         where: {
@@ -25,7 +22,6 @@ export const isAuthenticated = async (
         },
         include: { user: true },
       });
-      // console.log("sessionExists:", sessionExists);
 
       if (!sessionExists) {
         return next(
@@ -35,7 +31,6 @@ export const isAuthenticated = async (
 
       const user = sessionExists.user;
 
-      // 🔒 user status check
       if (
         user.status === UserStatus.BLOCKED ||
         user.status === UserStatus.SUSPEND
@@ -43,7 +38,6 @@ export const isAuthenticated = async (
         return next(new ErrorHandler("Unauthorized! User not active", 401));
       }
 
-      // ⏳ session refresh warning
       const now = new Date();
       const expiresAt = new Date(sessionExists.expiresAt);
       const createdAt = new Date(sessionExists.createdAt);

@@ -2,10 +2,11 @@ import { Router } from "express";
 import {
   changePassword,
   forgotPassword,
+  getSession,
   login,
   otpVerify,
   registerUser,
-  resetPassword
+  resetPassword,
 } from "./auth.controller";
 import { isAuthenticated } from "../../middleware/middleware";
 import { registerSchema } from "../../types/zod/auth/zod.register";
@@ -26,5 +27,6 @@ router
 router
   .route("/email-otp/reset-password")
   .post(validateRequest(resetPasswordSchema), resetPassword);
+router.route("/get-session").get(getSession);
 
 export const authRouter = router;
