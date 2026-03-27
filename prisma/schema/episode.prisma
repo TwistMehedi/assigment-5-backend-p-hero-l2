@@ -1,0 +1,15 @@
+model Episode {
+  id            String   @id @default(uuid())
+  episodeNumber Int      
+  title         String
+  description   String?
+  
+  videoUrl      String    
+  duration      String?   
+  thumbnailUrl  String?
+  
+  seasonId      String
+  season        Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+}

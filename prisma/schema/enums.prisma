@@ -25,3 +25,9 @@ enum ContentType {
     MOVIE
     SERIES
 }
+
+enum MediaStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

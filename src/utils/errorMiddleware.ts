@@ -1,13 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "./errorHandler";
 import { env } from "../config/envConfig";
+import { deleteCloudinaryImage } from "../config/cloudinary";
 
-export const errorMiddleware = (
+export const errorMiddleware = async (
   err: ErrorHandler,
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
+  if (req.file) {
+    const publicId = req.file?.filename;
+    await deleteCloudinaryImage(publicId);
+    console.log("Deleted uploaded file due to error:", publicId);
+  }
+
   err.message = err.message || `Internal server error`;
   err.statusCode = err.statusCode || 500;
 

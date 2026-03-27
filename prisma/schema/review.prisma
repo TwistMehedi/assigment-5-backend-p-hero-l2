@@ -11,6 +11,9 @@ model Review {
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   mediaId String
   media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  seriesId String
+  series   Series  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
 
   comments Comment[]
   likes    ReviewLike[]

@@ -5,6 +5,7 @@ import cors from "cors";
 import { errorMiddleware } from "./utils/errorMiddleware";
 import { authRouter } from "./modules/auth/auth.route";
 import { movieRouter } from "./modules/movie/movie.route";
+import { notFound } from "./middleware/notFound";
 
 const app = express();
 
@@ -21,8 +22,9 @@ app.use(
 );
 
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/categories", movieRouter);
+app.use("/api/v1/movie", movieRouter);
 
 app.use(errorMiddleware);
+app.use(notFound);
 
 export default app;

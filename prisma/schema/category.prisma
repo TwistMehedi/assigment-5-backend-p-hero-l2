@@ -1,9 +1,18 @@
-model Categories {
-    id         String  @id @default(uuid())
-    name       String  @unique
-    mediaCount String?
-    slug       String?
-    userId     String
+// model Categories {
+//     id         String  @id @default(uuid())
+//     name       String  @unique
+//     mediaCount String?
+//     slug       String?
+//     userId     String
 
-    user User @relation(fields: [userId], references: [id])
+//     user User @relation(fields: [userId], references: [id])
+// }
+
+model Categories {
+  id     String  @id @default(uuid())
+  name   String
+  userId String? 
+  user   User?   @relation(fields: [userId], references: [id])
+  media  Media[]
+  series Series[]
 }

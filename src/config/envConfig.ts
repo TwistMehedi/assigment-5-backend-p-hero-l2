@@ -16,6 +16,9 @@ interface IEnvConfig {
   JWT_SECRET_KEY: string;
   JWT_REFRESH_SECRET: string;
   JWT_SESSION_SECRET: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 
 const validateEnv = [
@@ -29,6 +32,9 @@ const validateEnv = [
   "JWT_SECRET_KEY",
   "JWT_REFRESH_SECRET",
   "JWT_SESSION_SECRET",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ] as const;
 
 validateEnv.forEach((envVar) => {
@@ -48,6 +54,9 @@ const envConfig = (): IEnvConfig => ({
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY as string,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
   JWT_SESSION_SECRET: process.env.JWT_SESSION_SECRET as string,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
 });
 
 export const env = envConfig();

@@ -1,0 +1,16 @@
+model Channel {
+    id          String   @id @default(uuid())
+    name        String
+    location    String
+    image       String?
+    description String
+    totalMovie  String?  @default("0")
+    totalSeries String?  @default("0")
+    createdAt   DateTime @default(now())
+
+    userId      String
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    media       Media[]  
+    series      Series[] 
+}

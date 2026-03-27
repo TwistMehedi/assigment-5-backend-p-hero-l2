@@ -18,6 +18,10 @@ model User {
     payments   Payment[]
     likes      ReviewLike[]
     categories Categories[]
+    media      Media[]
+    series     Series[]
+    channels Channel[] 
+    like    Like[]
 
     @@unique([email])
     @@map("user")
