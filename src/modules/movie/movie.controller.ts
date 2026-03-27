@@ -3,7 +3,12 @@
 import { sendResponse } from "../../helper/sendResponse";
 import { prisma } from "../../lib/prisma";
 import { TryCatch } from "../../utils/TryCatch";
-import { createCategory, createChannelService } from "./movie.service";
+import {
+  createCategory,
+  createChannelService,
+  getChannelsService,
+  updateChannelService,
+} from "./movie.service";
 
 export const addCategoryByAdmin = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
@@ -25,4 +30,22 @@ export const createChannel = TryCatch(async (req, res, next) => {
   const result = await createChannelService(payload, file, userId);
   // console.log(result);
   sendResponse(res, 200, "Channel added successfully", result);
+});
+
+export const channels = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+
+  const result = await getChannelsService(userId);
+  sendResponse(res, 200, "Channels fetched successfully", result);
+});
+
+export const updateChannel = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const id = req.params.id as string;
+  const payload = req.body;
+
+  const file = req?.file as Express.Multer.File;
+  const result = await updateChannelService(payload, id, file, userId);
+
+  sendResponse(res, 200, "Channel updated successfully", result);
 });
