@@ -6,6 +6,7 @@ import { TryCatch } from "../../utils/TryCatch";
 import {
   createCategory,
   createChannelService,
+  deleteChannelService,
   getChannelsService,
   updateChannelService,
 } from "./movie.service";
@@ -14,7 +15,7 @@ export const addCategoryByAdmin = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
   const payload = req.body;
   const result = await createCategory(payload, userId);
-  sendResponse(res, 200, "Category added successfully", result);
+  sendResponse(res, 201, "Category added successfully", result);
 });
 
 export const getCategories = TryCatch(async (req, res, next) => {
@@ -26,16 +27,17 @@ export const createChannel = TryCatch(async (req, res, next) => {
   const payload = req.body;
   const file = req?.file as Express.Multer.File;
   const userId = req.user?.id as string;
-  // console.log(file);
+
   const result = await createChannelService(payload, file, userId);
-  // console.log(result);
-  sendResponse(res, 200, "Channel added successfully", result);
+
+  sendResponse(res, 201, "Channel added successfully", result);
 });
 
 export const channels = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
 
   const result = await getChannelsService(userId);
+
   sendResponse(res, 200, "Channels fetched successfully", result);
 });
 
@@ -48,4 +50,11 @@ export const updateChannel = TryCatch(async (req, res, next) => {
   const result = await updateChannelService(payload, id, file, userId);
 
   sendResponse(res, 200, "Channel updated successfully", result);
+});
+
+export const deleteChannel = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const id = req.params.id as string;
+  const result = await deleteChannelService(userId, id);
+  sendResponse(res, 200, "Channel delete successfully", result);
 });

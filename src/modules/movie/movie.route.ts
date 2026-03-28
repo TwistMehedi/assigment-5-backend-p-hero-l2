@@ -3,6 +3,7 @@ import {
   addCategoryByAdmin,
   channels,
   createChannel,
+  deleteChannel,
   getCategories,
   updateChannel,
 } from "./movie.controller";
@@ -42,5 +43,9 @@ router
     validateRequest(channelSchema),
     updateChannel,
   );
+
+router
+  .route("/delete-channel/:id")
+  .delete(isAuthenticated, authorizeRoles("CREATOR"), deleteChannel);
 
 export const movieRouter = router;
