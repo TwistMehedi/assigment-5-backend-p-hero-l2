@@ -4,6 +4,7 @@ import { sendResponse } from "../../helper/sendResponse";
 import { prisma } from "../../lib/prisma";
 import { TryCatch } from "../../utils/TryCatch";
 import {
+  chennelService,
   createCategory,
   createChannelService,
   deleteChannelService,
@@ -56,5 +57,13 @@ export const deleteChannel = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
   const id = req.params.id as string;
   const result = await deleteChannelService(userId, id);
-  sendResponse(res, 200, "Channel delete successfully", result);
+  sendResponse(res, 201, "Channel delete successfully", result);
+});
+
+export const channel = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const id = req.params.id as string;
+
+  const result = await chennelService(userId, id);
+  sendResponse(res, 200, "Channel goted", result);
 });

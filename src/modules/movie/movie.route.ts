@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addCategoryByAdmin,
+  channel,
   channels,
   createChannel,
   deleteChannel,
@@ -47,5 +48,9 @@ router
 router
   .route("/delete-channel/:id")
   .delete(isAuthenticated, authorizeRoles("CREATOR"), deleteChannel);
+
+router
+  .route("/channel/:id")
+  .get(isAuthenticated, authorizeRoles("CREATOR"), channel);
 
 export const movieRouter = router;

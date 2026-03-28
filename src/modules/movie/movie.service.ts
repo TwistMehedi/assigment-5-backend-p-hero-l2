@@ -141,3 +141,18 @@ export const deleteChannelService = async (userId: string, id: string) => {
 
   return deleteChannel;
 };
+
+export const chennelService = async (userId: string, id: string) => {
+  const channel = await prisma.channel.findUnique({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!channel) {
+    throw new ErrorHandler("Channel not found", 400);
+  }
+
+  return channel;
+};
