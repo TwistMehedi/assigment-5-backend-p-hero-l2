@@ -302,11 +302,19 @@ export const getAllSeasonsService = async (seriesId: string) => {
   return seasons;
 };
 
+export const getSeasonService = async (seasonId: string) => {
+  const season = await prisma.season.findUnique({
+    where: { id: seasonId },
+    include: { episodes: true },
+  });
+  return season;
+};
+
 // episodes can be added here in future
 export const createEpisode = async (
   payload: {
     title: string;
-    episodeNumber: number;
+    episodeNumber: string | number;
     description?: string;
     duration: number;
     seasonId: string;
@@ -315,10 +323,11 @@ export const createEpisode = async (
 ) => {
   const { episodeNumber, title, description, duration, seasonId } = payload;
 
+  const episodeNum = Number(episodeNumber);
   const createData: any = {
     title,
     description,
-    episodeNumber: Number(episodeNumber),
+    episodeNumber: episodeNum,
     seasonId,
     duration: duration ? Number(duration) : 0,
   };

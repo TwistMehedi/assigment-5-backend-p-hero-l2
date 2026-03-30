@@ -90,9 +90,10 @@ export const updateSessionSchema = z.object({
 export const createEpisodeSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   episodeNumber: z
-    .number()
-    .int()
-    .positive("Episode number must be a positive integer"),
+    .string("Episode number must be a positive integer")
+    .refine((val) => !isNaN(parseInt(val)), {
+      message: "Episode number must be a valid integer",
+    }),
   description: z
     .string()
     .max(200, "Description must be at most 200 characters")

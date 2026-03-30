@@ -15,7 +15,7 @@ export const validateRequest = (schema: any) => {
       console.error("Validation errors:", formattedErrors);
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: `Validation failed`,
         errors: formattedErrors,
       });
     }

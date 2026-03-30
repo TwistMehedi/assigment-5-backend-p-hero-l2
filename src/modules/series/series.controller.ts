@@ -12,6 +12,7 @@ import {
   mySeriesService,
   updateSeasonService,
   updateSeriesService,
+  getSeasonService,
 } from "./series.service";
 
 export const createSeries = TryCatch(async (req, res, next) => {
@@ -86,6 +87,13 @@ export const allSeasons = TryCatch(async (req, res, next) => {
   const seriesId = req.params.seriesId as string;
   const result = await getAllSeasonsService(seriesId);
   sendResponse(res, 200, "All Seasons Retrieved Successfully", result);
+});
+
+export const season = TryCatch(async (req, res, next) => {
+  const seasonId = req.params.seasonid as string;
+  // console.log(seasonId);
+  const result = await getSeasonService(seasonId);
+  sendResponse(res, 200, "Season Retrieved Successfully", result);
 });
 
 // episodes can be added here in future

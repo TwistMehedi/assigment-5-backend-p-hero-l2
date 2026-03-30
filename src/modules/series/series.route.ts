@@ -11,6 +11,7 @@ import {
   updateSeries,
   uploadEpisode,
   uploadSession,
+  season,
 } from "./series.controller";
 import upload from "../../middleware/multer";
 import { validateRequest } from "../../middleware/validateRequestZod";
@@ -90,15 +91,16 @@ router
   .route("/all-seasons/:seriesId")
   .get(isAuthenticated, authorizeRoles("CREATOR"), allSeasons);
 
-//episodes routes can be added here in future
 router
-  .route("/upload-episode")
-  .post(
-    isAuthenticated,
-    authorizeRoles("CREATOR"),
-    upload.single("video"),
-    validateRequest(createEpisodeSchema),
-    uploadEpisode,
-  );
+  .route("/season/:seasonid")
+  .get(isAuthenticated, authorizeRoles("CREATOR"), season);
+
+router.route("/upload-episode").post(
+  isAuthenticated,
+  authorizeRoles("CREATOR"),
+  upload.single("video"),
+  // validateRequest(createEpisodeSchema),
+  uploadEpisode,
+);
 
 export const seriesRouter = router;
