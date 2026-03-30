@@ -16,40 +16,24 @@ import {
 
 export const createSeries = TryCatch(async (req, res, next) => {
   const userId = req.user?.id;
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const file = req.file as Express.Multer.File;
 
   const seriesData: ISeriesPayload = {
     ...req.body,
     userId,
-    poster: files?.poster?.[0]?.path,
-    posterUrlPublicId: files?.poster?.[0]?.filename,
-
-    trailer: files?.trailer?.[0]?.path,
-    trailerUrlPublicId: files?.trailer?.[0]?.filename,
   };
-
-  const result = await createSeriesSevice(seriesData);
+  const result = await createSeriesSevice(seriesData, file);
   sendResponse(res, 201, "Series Created Successfully", result);
 });
 
 export const updateSeries = TryCatch(async (req, res, next) => {
   const id = req.params.id as string;
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const file = req.file as Express.Multer.File;
   const userId = req.user?.id as string;
 
   const updatePayload: Partial<ISeriesPayload> = { ...req.body };
 
-  if (files?.poster?.[0]) {
-    updatePayload.poster = files.poster[0].path;
-    updatePayload.posterUrlPublicId = files.poster[0].filename;
-  }
-
-  if (files?.trailer?.[0]) {
-    updatePayload.trailer = files.trailer[0].path;
-    updatePayload.trailerUrlPublicId = files.trailer[0].filename;
-  }
-
-  const result = await updateSeriesService(id, updatePayload, userId);
+  const result = await updateSeriesService(id, updatePayload, userId, file);
 
   sendResponse(res, 200, "Series Updated Successfully", result);
 });

@@ -6,6 +6,7 @@ import { errorMiddleware } from "./utils/errorMiddleware";
 import { authRouter } from "./modules/auth/auth.route";
 import { movieRouter } from "./modules/movie/movie.route";
 import { notFound } from "./middleware/notFound";
+import { seriesRouter } from "./modules/series/series.route";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/movie", movieRouter);
+app.use("/api/v1/series", seriesRouter);
 
 app.use(errorMiddleware);
 app.use(notFound);

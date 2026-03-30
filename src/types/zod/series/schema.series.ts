@@ -72,8 +72,9 @@ export const createSessionSchema = z.object({
   seasonNumber: z
     .number()
     .int()
-    .positive("Season number must be a positive integer"),
-  seasonId: z.string().min(1, "Season ID is required"),
+    .positive("Season number must be a positive integer")
+    .optional(),
+  seriesId: z.string().min(1, "Series ID is required"),
 });
 
 export const updateSessionSchema = z.object({

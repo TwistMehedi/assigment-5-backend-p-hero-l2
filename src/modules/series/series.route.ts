@@ -24,27 +24,25 @@ import {
 
 const router = express.Router();
 
-router.route("/upload").post(
-  isAuthenticated,
-  authorizeRoles("CREATOR"),
-  upload.fields([
-    { name: "poster", maxCount: 1 },
-    { name: "trailer", maxCount: 1 },
-  ]),
-  validateRequest(createSeriesSchema),
-  createSeries,
-);
+router
+  .route("/upload")
+  .post(
+    isAuthenticated,
+    authorizeRoles("CREATOR"),
+    upload.single("poster"),
+    validateRequest(createSeriesSchema),
+    createSeries,
+  );
 
-router.route("/update-series/:id").patch(
-  isAuthenticated,
-  authorizeRoles("CREATOR"),
-  upload.fields([
-    { name: "poster", maxCount: 1 },
-    { name: "trailer", maxCount: 1 },
-  ]),
-  validateRequest(updateSeriesSchema),
-  updateSeries,
-);
+router
+  .route("/update-series/:id")
+  .patch(
+    isAuthenticated,
+    authorizeRoles("CREATOR"),
+    upload.single("poster"),
+    validateRequest(updateSeriesSchema),
+    updateSeries,
+  );
 
 router
   .route("/my-serieses")
@@ -60,15 +58,13 @@ router
 
 router.route("/all-series").get(getAllSeries);
 
-router
-  .route("/upload-season")
-  .post(
-    isAuthenticated,
-    authorizeRoles("CREATOR"),
-    upload.single("image"),
-    validateRequest(createSessionSchema),
-    uploadSession,
-  );
+router.route("/upload-season").post(
+  isAuthenticated,
+  authorizeRoles("CREATOR"),
+  upload.single("poster"),
+  // validateRequest(createSessionSchema),
+  uploadSession,
+);
 
 router
   .route("/update-season/:id")

@@ -3,7 +3,10 @@ import { prisma } from "../../lib/prisma";
 import { ISeriesPayload } from "../../types/interface/movie/interface.series";
 import { ErrorHandler } from "../../utils/errorHandler";
 
-export const createSeriesSevice = async (payload: ISeriesPayload) => {
+export const createSeriesSevice = async (
+  payload: ISeriesPayload,
+  file: Express.Multer.File,
+) => {
   const {
     userId,
     title,
@@ -14,25 +17,23 @@ export const createSeriesSevice = async (payload: ISeriesPayload) => {
     releaseDate,
     price,
     isPremium,
-    poster,
-    posterUrlPublicId,
-    trailer,
-    trailerUrlPublicId,
     ...rest
   } = payload;
 
   const createData: any = {
     ...rest,
+    title,
+    description,
+    director,
+    genre,
+    releaseDate: releaseDate ? new Date(releaseDate) : new Date(),
     cast: typeof cast === "string" ? JSON.parse(cast) : cast,
     price: parseFloat(price || "0"),
-    isPremium: Boolean(isPremium),
+    isPremium: String(isPremium) === "true",
   };
 
-  if (poster) createData.posterUrl = poster;
-  if (posterUrlPublicId) createData.posterPublicId = posterUrlPublicId;
-  if (trailer) createData.trailerUrl = trailer;
-  if (trailerUrlPublicId) createData.trailerPublicId = trailerUrlPublicId;
-
+  if (file) createData.posterUrl = file.path;
+  if (file) createData.posterUrlPublicId = file.filename;
   if (userId) createData.userId = userId;
 
   const result = await prisma.series.create({
@@ -46,6 +47,7 @@ export const updateSeriesService = async (
   id: string,
   payload: Partial<ISeriesPayload> & Record<string, any>,
   userId: string,
+  file: Express.Multer.File,
 ) => {
   const {
     title,
@@ -75,10 +77,8 @@ export const updateSeriesService = async (
   if (price) updateData.price = parseFloat(price);
   if (isPremium) updateData.isPremium = String(isPremium) === "true";
 
-  if (poster) updateData.posterUrl = poster;
-  if (posterUrlPublicId) updateData.posterPublicId = posterUrlPublicId;
-  if (trailer) updateData.trailerUrl = trailer;
-  if (trailerUrlPublicId) updateData.trailerPublicId = trailerUrlPublicId;
+  if (file) updateData.posterUrl = file.path;
+  if (file) updateData.posterPublicId = file.filename;
 
   const series = await prisma.series.findUnique({
     where: {
@@ -93,10 +93,6 @@ export const updateSeriesService = async (
 
   if (poster) {
     await deleteCloudinaryImage(series.posterUrlPublicId || "");
-  }
-
-  if (trailer) {
-    await deleteCloudinaryImage(series.trailerUrlPublicId || "");
   }
 
   const result = await prisma.series.update({
@@ -121,6 +117,16 @@ export const mySeriesService = async (id: string, userId: string) => {
     where: {
       id,
       userId,
+    },
+    include: {
+      seasons: {
+        include: {
+          episodes: true,
+        },
+        orderBy: {
+          seasonNumber: "asc",
+        },
+      },
     },
   });
   return series;
@@ -216,18 +222,22 @@ export const getAllSeriesService = async (filters: any) => {
 };
 
 export const createSession = async (
-  payload: { seasonNumber: number; title: string; seriesId: string },
-  file: Express.Multer.File,
+  payload: { seasonNumber: string | number; title?: string; seriesId: string },
+  file?: Express.Multer.File,
 ) => {
   const { title, seasonNumber, seriesId } = payload;
 
+  if (!seriesId) {
+    throw new Error("seriesId is required to create a season");
+  }
+
   const result = await prisma.season.create({
     data: {
-      title,
-      seasonNumber,
-      posterUrl: file.path,
-      posterUrlPublicId: file.filename,
-      seriesId,
+      title: title ?? null,
+      seasonNumber: seasonNumber ? Number(seasonNumber) : 1,
+      seriesId: seriesId,
+      posterUrl: file?.path || null,
+      posterUrlPublicId: file?.filename || null,
     },
   });
 
