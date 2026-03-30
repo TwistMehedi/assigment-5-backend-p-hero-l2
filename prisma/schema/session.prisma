@@ -1,12 +1,14 @@
 model Season {
-  id           String     @id @default(uuid())
-  seasonNumber Int         
-  title        String?     
-  
-  seriesId     String
-  series       Series     @relation(fields: [seriesId], references: [id], onDelete: Cascade)
-  
-  episodes     Episode[]  
-  
-  createdAt    DateTime   @default(now())
+  id                String  @id @default(uuid())
+  seasonNumber      Int
+  title             String?
+  posterUrl         String?
+  posterUrlPublicId String?
+
+  seriesId String
+  series   Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  episodes Episode[]
+
+  createdAt DateTime @default(now())
 }

@@ -1,5 +1,6 @@
 import { deleteCloudinaryImage } from "../../config/cloudinary";
 import { prisma } from "../../lib/prisma";
+import { IMoviePayload } from "../../types/interface/movie/interface.movie";
 import { ErrorHandler } from "../../utils/errorHandler";
 
 export const createCategory = async (
@@ -86,7 +87,6 @@ export const updateChannelService = async (
     throw new ErrorHandler("Channel name already exist", 400);
   }
 
-  console.log("isChannelExist", isChannelExist);
   if (isChannelExist.image) {
     await deleteCloudinaryImage(isChannelExist.image);
   }
@@ -155,4 +155,239 @@ export const chennelService = async (userId: string, id: string) => {
   }
 
   return channel;
+};
+
+export const uploadMovieService = async (payload: IMoviePayload) => {
+  const result = await prisma.media.create({
+    data: {
+      title: payload.title,
+      description: payload.description,
+      genre: payload.genre,
+      director: payload.director,
+
+      cast: JSON.parse(payload.cast),
+      duration: payload.duration,
+      releaseDate: new Date(payload.releaseDate),
+      price: parseFloat(payload.price),
+
+      isPremium: String(payload.isPremium) === "true",
+
+      thumbnailUrl: payload.thumbnail.url,
+      thumbnailPublicId: payload.thumbnail.public_id,
+
+      posterUrl: payload.poster.url,
+      posterPublicId: payload.poster.public_id,
+
+      videoUrl: payload.video.url,
+      videoUrlPublicId: payload.video.public_id,
+
+      ...(payload.userId && { userId: payload.userId }),
+    },
+  });
+
+  return result;
+};
+
+export const updateMovieService = async (
+  id: string,
+  payload: Partial<IMoviePayload> & Record<string, any>,
+  userId: string,
+) => {
+  const {
+    title,
+    description,
+    director,
+    genre,
+    thumbnail,
+    poster,
+    video,
+    cast,
+    duration,
+    price,
+    releaseDate,
+    isPremium,
+    ...rest
+  } = payload;
+
+  const movie = await prisma.media.findUnique({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (thumbnail) {
+    await deleteCloudinaryImage(movie?.thumbnailPublicId || "");
+  }
+
+  if (poster) {
+    await deleteCloudinaryImage(movie?.posterPublicId || "");
+  }
+
+  if (video) {
+    await deleteCloudinaryImage(movie?.videoUrlPublicId || "");
+  }
+
+  const updateData: any = { ...rest };
+
+  if (title) updateData.title = title;
+  if (description) updateData.description = description;
+  if (director) updateData.director = director;
+  if (genre) updateData.genre = genre;
+  if (cast) updateData.cast = JSON.parse(cast);
+  if (duration) updateData.duration = duration;
+  if (price) updateData.price = parseFloat(price);
+  if (releaseDate) updateData.releaseDate = new Date(releaseDate);
+  if (isPremium) updateData.isPremium = String(isPremium) === "true";
+
+  if (thumbnail) {
+    updateData.thumbnailUrl = thumbnail.url;
+    updateData.thumbnailPublicId = thumbnail.public_id;
+  }
+  if (poster) {
+    updateData.posterUrl = poster.url;
+    updateData.posterPublicId = poster.public_id;
+  }
+  if (video) {
+    updateData.videoUrl = video.url;
+    updateData.videoUrlPublicId = video.public_id;
+  }
+
+  const result = await prisma.media.update({
+    where: { id, userId },
+    data: updateData,
+  });
+
+  return result;
+};
+
+export const deleteMovieService = async (userId: string, id: string) => {
+  const movie = await prisma.media.findUnique({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!movie) {
+    throw new ErrorHandler("Delete movie not found", 400);
+  }
+  if (movie.thumbnailPublicId) {
+    await deleteCloudinaryImage(movie.thumbnailPublicId);
+  }
+  if (movie.posterPublicId) {
+    await deleteCloudinaryImage(movie.posterPublicId);
+  }
+  if (movie.videoUrlPublicId) {
+    await deleteCloudinaryImage(movie.videoUrlPublicId);
+  }
+  if (movie.trailerUrlPublicId) {
+    await deleteCloudinaryImage(movie.trailerUrlPublicId);
+  }
+
+  const deleteMovie = await prisma.media.delete({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  return deleteMovie;
+};
+
+export const getMyMovieService = async (userId: string, id: string) => {
+  const movie = await prisma.media.findUnique({
+    where: {
+      id,
+      userId,
+    },
+  });
+  return movie;
+};
+
+export const getMyMovies = async (
+  userId: string,
+  filters: { searchTerm?: string; page?: string; limit?: string },
+) => {
+  const page = Number(filters.page) || 1;
+  const limit = Number(filters.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const whereCondition: any = {
+    userId: userId,
+  };
+
+  if (filters.searchTerm) {
+    whereCondition.OR = [
+      {
+        title: {
+          contains: filters.searchTerm,
+          mode: "insensitive",
+        },
+      },
+      {
+        genre: {
+          contains: filters.searchTerm,
+          mode: "insensitive",
+        },
+      },
+      {
+        cast: {
+          hasSome: [filters.searchTerm],
+        },
+      },
+      {
+        director: {
+          contains: filters.searchTerm,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  const movies = await prisma.media.findMany({
+    where: whereCondition,
+    skip: skip,
+    take: limit,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      genre: true,
+      cast: true,
+      director: true,
+      thumbnailUrl: true,
+      posterUrl: true,
+      videoUrl: true,
+      trailerUrl: true,
+      price: true,
+      isPremium: true,
+      createdAt: true,
+      userId: true,
+    },
+  });
+
+  const total = await prisma.media.count({
+    where: whereCondition,
+  });
+
+  const cleanMovies = JSON.parse(JSON.stringify(movies));
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPage: Math.ceil(total / limit),
+    },
+    data: cleanMovies,
+  };
+};
+
+export const allMoviesService = async () => {
+  const movies = await prisma.media.findMany({});
+  return movies;
 };

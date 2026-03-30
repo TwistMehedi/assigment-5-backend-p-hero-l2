@@ -1,34 +1,32 @@
 model Series {
-  id              String      @id @default(uuid())
-  title           String
-  description     String
-  
-  categoryId      String
-  category        Categories    @relation(fields: [categoryId], references: [id])
-  
-  director        String?
-  cast            String[]
-  
-   
-  posterUrl       String?    
-  trailerUrl      String?     
-  
-  isPremium       Boolean     @default(false)
-  price           Float       @default(0.0)
-  status          MediaStatus @default(PENDING)  
-  
-  seasons           Season[]  
-  reviews           Review[]
-  watchlistedBy     Watchlist[]
-  channels Channel[]
-  likes    Like[]
-  
-  views           Int         @default(0)
-  averageRating   Float       @default(0.0)
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  director    String?
+  cast        String[]
 
-  userId       String?
-  user         User?       @relation(fields: [userId], references: [id])
+  genre       String
+  releaseDate DateTime
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  posterUrl         String?
+  posterUrlPublicId String?
+
+  trailerUrl         String?
+  trailerUrlPublicId String?
+
+  isPremium Boolean @default(false)
+  price     Float   @default(0.0)
+
+  seasons Season[]
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channel    Channel?    @relation(fields: [channelId], references: [id])
+  channelId  String?
+  likes      Like[]
+  reviews    Review[]
+  watchlists Watchlist[]
 }

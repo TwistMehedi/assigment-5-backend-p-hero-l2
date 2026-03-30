@@ -8,9 +8,14 @@ cloudinary.config({
   api_secret: env.CLOUDINARY_API_SECRET,
 });
 
-export const deleteCloudinaryImage = async (publicId: string) => {
+export const deleteCloudinaryImage = async (
+  publicId: string,
+  resourceType: "image" | "video" = "image",
+) => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
     console.log("Cloudinary image deleted:", result);
     return result;
   } catch (error) {
@@ -18,4 +23,5 @@ export const deleteCloudinaryImage = async (publicId: string) => {
     throw new ErrorHandler("Failed to delete image from Cloudinary", 500);
   }
 };
+
 export default cloudinary;

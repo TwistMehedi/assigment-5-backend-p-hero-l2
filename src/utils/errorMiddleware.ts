@@ -9,6 +9,18 @@ export const errorMiddleware = async (
   res: Response,
   next: NextFunction,
 ) => {
+
+  if (req.files) {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    for (const field in files) {
+      for (const file of files[field] as Express.Multer.File[]) {
+        const publicId = file.filename;
+        await deleteCloudinaryImage(publicId);
+        console.log("Deleted uploaded file due to error:", publicId);
+      }
+    }
+  };
+
   if (req.file) {
     const publicId = req.file?.filename;
     await deleteCloudinaryImage(publicId);
