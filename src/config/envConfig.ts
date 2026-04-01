@@ -19,6 +19,10 @@ interface IEnvConfig {
   CLOUDINARY_CLOUD_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
+  STRIPE_SECRET_KEY: string;
+  CLIENT_URL: string;
+  CLIENT_ID: string;
+  CLIENT_SECRET: string;
 }
 
 const validateEnv = [
@@ -35,6 +39,10 @@ const validateEnv = [
   "CLOUDINARY_CLOUD_NAME",
   "CLOUDINARY_API_KEY",
   "CLOUDINARY_API_SECRET",
+  "STRIPE_SECRET_KEY",
+  "CLIENT_URL",
+  "CLIENT_ID",
+  "CLIENT_SECRET",
 ] as const;
 
 validateEnv.forEach((envVar) => {
@@ -57,6 +65,10 @@ const envConfig = (): IEnvConfig => ({
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
+  CLIENT_URL: process.env.CLIENT_URL as string,
+  CLIENT_ID: process.env.CLIENT_ID as string,
+  CLIENT_SECRET: process.env.CLIENT_SECRET as string,
 });
 
 export const env = envConfig();

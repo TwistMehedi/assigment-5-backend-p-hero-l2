@@ -8,6 +8,7 @@ import {
   deleteChannel,
   deleteMovie,
   getCategories,
+  movie,
   myMovie,
   myMovies,
   updateChannel,
@@ -24,6 +25,10 @@ import {
 } from "../../types/zod/movie/schema.movie";
 
 const router = express.Router();
+
+router.route("/movies").get(allMovies);
+
+router.route("/movie/:id").get(movie);
 
 router
   .route("/create-category")
@@ -100,7 +105,5 @@ router
 router
   .route("/my-movies")
   .get(isAuthenticated, authorizeRoles("CREATOR"), myMovies);
-
-router.route("/movies").get(allMovies);
 
 export const movieRouter = router;

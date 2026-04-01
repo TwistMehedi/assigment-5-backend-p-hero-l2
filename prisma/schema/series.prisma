@@ -29,4 +29,5 @@ model Series {
   likes      Like[]
   reviews    Review[]
   watchlists Watchlist[]
+  purchases  Purchase[]
 }

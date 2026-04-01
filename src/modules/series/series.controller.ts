@@ -13,6 +13,7 @@ import {
   updateSeasonService,
   updateSeriesService,
   getSeasonService,
+  getSeriesServis,
 } from "./series.service";
 
 export const createSeries = TryCatch(async (req, res, next) => {
@@ -61,10 +62,14 @@ export const deleteSeries = TryCatch(async (req, res, next) => {
 
 export const getAllSeries = TryCatch(async (req, res, next) => {
   const filters = req.query;
-
   const result = await getAllSeriesService(filters);
-
   sendResponse(res, 200, "All Series Retrieved Successfully", result);
+});
+
+export const getSeries = TryCatch(async (req, res, next) => {
+  const id = req.params?.id as string;
+  const result = await getSeriesServis(id);
+  sendResponse(res, 200, "Single Serie Retrieved Successfully", result);
 });
 
 // session

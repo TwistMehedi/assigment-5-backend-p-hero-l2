@@ -158,22 +158,27 @@ export const deleteSeriesService = async (id: string, userId: string) => {
 };
 
 export const getAllSeriesService = async (filters: any) => {
-  const { searchTerm, category, page = 1, limit = 10 } = filters;
+  const { searchTerm, category, page = 1, limit = 5 } = filters;
 
   const skip = (Number(page) - 1) * Number(limit);
   const take = Number(limit);
 
-  const where: any = {};
+  const where: any = {
+    AND: [],
+  };
 
-  if (searchTerm) {
+  if (searchTerm && searchTerm.trim() !== "") {
     where.OR = [
       { title: { contains: searchTerm, mode: "insensitive" } },
       { description: { contains: searchTerm, mode: "insensitive" } },
+      { cast: { hasSome: [searchTerm] } },
     ];
   }
 
-  if (category) {
-    where.genre = { equals: category, mode: "insensitive" };
+  if (category && category !== "All") {
+    (where.AND as any).push({
+      genre: { equals: category },
+    });
   }
 
   const [result, total] = await Promise.all([
@@ -210,6 +215,8 @@ export const getAllSeriesService = async (filters: any) => {
     prisma.series.count({ where }),
   ]);
 
+  // console.log("all series by service", result);
+
   return {
     meta: {
       page: Number(page),
@@ -219,6 +226,30 @@ export const getAllSeriesService = async (filters: any) => {
     },
     data: result,
   };
+};
+
+export const getSeriesServis = async (id: string) => {
+  const series = await prisma.series.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      seasons: {
+        orderBy: {
+          seasonNumber: "asc",
+        },
+        include: {
+          episodes: {
+            orderBy: {
+              episodeNumber: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return series;
 };
 
 export const createSession = async (
@@ -310,7 +341,6 @@ export const getSeasonService = async (seasonId: string) => {
   return season;
 };
 
-// episodes can be added here in future
 export const createEpisode = async (
   payload: {
     title: string;

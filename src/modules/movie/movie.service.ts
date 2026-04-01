@@ -386,8 +386,3 @@ export const getMyMovies = async (
     data: cleanMovies,
   };
 };
-
-export const allMoviesService = async () => {
-  const movies = await prisma.media.findMany({});
-  return movies;
-};

@@ -34,6 +34,7 @@ model Media {
   watchlistedBy Watchlist[]
   channels      Channel[]
   likes         Like[]
+  purchases     Purchase[]
 
   status MediaStatus @default(APPROVED)
 

@@ -12,71 +12,83 @@ export const isAuthenticated = async (
   next: NextFunction,
 ) => {
   try {
-    const sessionToken = req.cookies["better-auth.session_token"];
+    const sessionTokenRaw =
+      req.cookies["better-auth.session_token"] ||
+      req.cookies["__Secure-better-auth.session_token"];
 
-    if (sessionToken) {
-      const sessionExists = await prisma.session.findFirst({
-        where: {
-          token: sessionToken,
-          expiresAt: { gt: new Date() },
-        },
-        include: { user: true },
-      });
+    const sessionDataRaw =
+      req.cookies["better-auth.session_data"] ||
+      req.cookies["__Secure-better-auth.session_data"];
 
-      if (!sessionExists) {
-        return next(
-          new ErrorHandler("Session expired. Please login again", 401),
+    let sessionToken = "";
+
+    if (sessionTokenRaw) {
+      sessionToken = sessionTokenRaw.includes(".")
+        ? sessionTokenRaw.split(".")[0]
+        : sessionTokenRaw;
+    } else if (sessionDataRaw) {
+      try {
+        const decodedData = Buffer.from(sessionDataRaw, "base64").toString(
+          "utf-8",
         );
+        const parsedData = JSON.parse(decodedData);
+
+        const rawToken = parsedData.session?.token || parsedData.token;
+
+        sessionToken = rawToken?.includes(".")
+          ? rawToken.split(".")[0]
+          : rawToken;
+      } catch (err) {
+        console.log("Decoding Error:", err);
       }
-
-      const user = sessionExists.user;
-
-      if (
-        user.status === UserStatus.BLOCKED ||
-        user.status === UserStatus.SUSPEND
-      ) {
-        return next(new ErrorHandler("Unauthorized! User not active", 401));
-      }
-
-      const now = new Date();
-      const expiresAt = new Date(sessionExists.expiresAt);
-      const createdAt = new Date(sessionExists.createdAt);
-
-      const sessionLifeTime = expiresAt.getTime() - createdAt.getTime();
-      const timeRemaining = expiresAt.getTime() - now.getTime();
-      const percentRemaining = (timeRemaining / sessionLifeTime) * 100;
-
-      if (percentRemaining < 20) {
-        res.setHeader("X-Session-Refresh", "true");
-      }
-
-      req.user = {
-        id: user.id,
-        role: user.role,
-        email: user.email,
-      };
-
-      return next();
     }
 
-    // const token = req.cookies?.token;
+    if (!sessionToken) {
+      // console.log("Available Cookies:", req.cookies);
+      return next(new ErrorHandler("Please login first", 401));
+    }
 
-    // if (!token) {
-    //   return next(new ErrorHandler("Please login first", 401));
-    // }
+    const sessionExists = await prisma.session.findFirst({
+      where: {
+        token: sessionToken,
+        expiresAt: { gt: new Date() },
+      },
+      include: { user: true },
+    });
 
-    // const decoded = jwt.verify(token, env.JWT_SECRET_KEY) as JwtPayload;
+    if (!sessionExists) {
+      return next(new ErrorHandler("Session expired. Please login again", 401));
+    }
 
-    // req.user = {
-    //   id: decoded.id,
-    //   role: decoded.role,
-    //   email: decoded.email,
-    // };
+    const user = sessionExists.user;
+
+    if (
+      user.status === UserStatus.BLOCKED ||
+      user.status === UserStatus.SUSPEND
+    ) {
+      return next(new ErrorHandler("Unauthorized! User not active", 401));
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(sessionExists.expiresAt);
+    const createdAt = new Date(sessionExists.createdAt);
+    const sessionLifeTime = expiresAt.getTime() - createdAt.getTime();
+    const timeRemaining = expiresAt.getTime() - now.getTime();
+    const percentRemaining = (timeRemaining / sessionLifeTime) * 100;
+
+    if (percentRemaining < 20) {
+      res.setHeader("X-Session-Refresh", "true");
+    }
+
+    req.user = {
+      id: user.id,
+      role: user.role,
+      email: user.email,
+    };
 
     return next();
   } catch (error) {
-    console.log("❌ Auth Error:", error);
-
+    console.log(" Auth Error:", error);
     return next(new ErrorHandler("Authentication failed", 401));
   }
 };

@@ -5,11 +5,19 @@ import { bearer, emailOTP } from "better-auth/plugins";
 import { sendMail } from "../helper/sendMail";
 import { Role, UserStatus } from "../generated/prisma";
 import { emailMessage, forgotMessage } from "../helper/mailText";
+import { env } from "../config/envConfig";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+
+  baseURL: env.BETTER_AUTH_URL,
+  trustedOrigins: [
+    env.CLIENT_URL,
+    "http://localhost:3000",
+    "https://your-movie-portal.vercel.app",
+  ],
 
   plugins: [
     bearer(),
@@ -17,7 +25,6 @@ export const auth = betterAuth({
       otpLength: 8,
       expiresIn: 600,
       async sendVerificationOTP({ email, otp, type }) {
-        // console.log("OTP Type Received:", type);
         if (type === "sign-in") {
           await sendMail(email, otp, emailMessage);
         } else if (type === "forget-password") {
@@ -58,24 +65,32 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    useSecureCookies: false,
+    useSecureCookies: true,
     cookies: {
       state: {
         attributes: {
-          sameSite: "lax", // ✅ change
-          secure: false, // ✅ change
+          sameSite: "lax",
+          secure: true,
           httpOnly: true,
           path: "/",
         },
       },
       sessionToken: {
         attributes: {
-          sameSite: "lax", // ✅ change
-          secure: false, // ✅ change
+          sameSite: "lax",
+          secure: true,
           httpOnly: true,
           path: "/",
         },
       },
+    },
+  },
+
+  socialProviders: {
+    google: {
+      clientId: env.CLIENT_ID,
+      clientSecret: env.CLIENT_SECRET,
+      redirectUri: `${env.BETTER_AUTH_URL}/api/auth/callback/google`,
     },
   },
 });

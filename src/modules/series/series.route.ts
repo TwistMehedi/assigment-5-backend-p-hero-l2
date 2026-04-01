@@ -12,6 +12,7 @@ import {
   uploadEpisode,
   uploadSession,
   season,
+  getSeries,
 } from "./series.controller";
 import upload from "../../middleware/multer";
 import { validateRequest } from "../../middleware/validateRequestZod";
@@ -24,6 +25,9 @@ import {
 } from "../../types/zod/series/schema.series";
 
 const router = express.Router();
+
+router.route("/all-series").get(getAllSeries);
+router.route("/series/:id").get(getSeries);
 
 router
   .route("/upload")
@@ -56,8 +60,6 @@ router
 router
   .route("/delete-series/:id")
   .delete(isAuthenticated, authorizeRoles("CREATOR"), deleteSeries);
-
-router.route("/all-series").get(getAllSeries);
 
 router.route("/upload-season").post(
   isAuthenticated,

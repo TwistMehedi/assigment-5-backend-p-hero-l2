@@ -1,0 +1,25 @@
+model Purchase {
+    id     String @id @default(uuid())
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    itemId   String
+    itemType PurchaseType
+
+    amount   Float
+    currency String @default("USD")
+
+    transactionId String         @unique
+    status        PurchaseStatus @default(PENDING)
+
+    mediaId  String?
+    media    Media?  @relation(fields: [mediaId], references: [id])
+    seriesId String?
+    series   Series? @relation(fields: [seriesId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+    @@index([itemId])
+}

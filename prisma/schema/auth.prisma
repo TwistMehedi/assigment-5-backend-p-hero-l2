@@ -20,8 +20,9 @@ model User {
     categories Categories[]
     media      Media[]
     series     Series[]
-    channels Channel[] 
-    like    Like[]
+    channels   Channel[]
+    like       Like[]
+    purchases  Purchase[]
 
     @@unique([email])
     @@map("user")

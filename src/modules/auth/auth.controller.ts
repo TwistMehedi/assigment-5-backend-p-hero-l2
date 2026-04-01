@@ -73,10 +73,12 @@ export const resetPassword = TryCatch(async (req, res, next) => {
 });
 
 export const getSession = TryCatch(async (req, res, next) => {
-  const token =
+  const rawToken =
     req.cookies["better-auth.session_token"] ||
     req.cookies["__Secure-better-auth.session_token"] ||
     req.headers.authorization?.split(" ")[1];
+
+  const token = rawToken.includes(".") ? rawToken.split(".")[0] : rawToken;
 
   if (!token) {
     return next(new ErrorHandler("Unauthorized", 401));

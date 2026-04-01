@@ -108,7 +108,6 @@ export const loginUser = async (payload: {
       },
     });
 
-    console.log("data");
     const data = await auth.api.signInEmail({
       body: {
         email: user.email,
@@ -117,7 +116,6 @@ export const loginUser = async (payload: {
       },
     });
 
-    console.log(data);
     return data;
   } catch (error) {
     console.log("login error", error);
@@ -213,7 +211,7 @@ export const sessionService = async (token: string) => {
     },
     include: { user: true },
   });
-
+  
   if (!session) {
     throw new Error("Session not found");
   }

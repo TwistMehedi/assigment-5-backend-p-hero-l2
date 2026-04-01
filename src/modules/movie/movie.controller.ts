@@ -4,6 +4,7 @@ import { Prisma } from "../../generated/prisma";
 import { sendResponse } from "../../helper/sendResponse";
 import { prisma } from "../../lib/prisma";
 import { IMoviePayload } from "../../types/interface/movie/interface.movie";
+import { ErrorHandler } from "../../utils/errorHandler";
 import { TryCatch } from "../../utils/TryCatch";
 import {
   chennelService,
@@ -184,7 +185,7 @@ export const allMovies = TryCatch(async (req, res) => {
     });
   }
 
-  if (category) {
+  if (category && category !== "All") {
     (where.AND as any).push({
       genre: { equals: category },
     });
@@ -200,6 +201,7 @@ export const allMovies = TryCatch(async (req, res) => {
     prisma.media.count({ where }),
   ]);
 
+  // console.log("Fetched movies:", movies);
   sendResponse(res, 200, "Movies fetched successfully", {
     movies,
     pagination: {
@@ -209,4 +211,15 @@ export const allMovies = TryCatch(async (req, res) => {
       limit: take,
     },
   });
+});
+
+export const movie = TryCatch(async (req, res, next) => {
+  const id = req.params.id as string;
+  const movie = await prisma.media.findFirst({
+    where: { id },
+  });
+  if (!movie) {
+    next(new ErrorHandler("Movie not found", 400));
+  }
+  sendResponse(res, 200, "Movie fetched successfully", movie);
 });

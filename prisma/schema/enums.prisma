@@ -27,7 +27,19 @@ enum ContentType {
 }
 
 enum MediaStatus {
-  PENDING
-  APPROVED
-  REJECTED
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+enum PurchaseType {
+    MOVIE
+    SERIES
+}
+
+enum PurchaseStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REFUNDED
 }
