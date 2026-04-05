@@ -14,6 +14,10 @@ import {
   updateSeriesService,
   getSeasonService,
   getSeriesServis,
+  updateSeriesAdminService,
+  deleteSeriesAdminService,
+  updateEpisodeService,
+  deleteEpisodeService,
 } from "./series.service";
 
 export const createSeries = TryCatch(async (req, res, next) => {
@@ -96,12 +100,10 @@ export const allSeasons = TryCatch(async (req, res, next) => {
 
 export const season = TryCatch(async (req, res, next) => {
   const seasonId = req.params.seasonid as string;
-  // console.log(seasonId);
   const result = await getSeasonService(seasonId);
   sendResponse(res, 200, "Season Retrieved Successfully", result);
 });
 
-// episodes can be added here in future
 export const uploadEpisode = TryCatch(async (req, res, next) => {
   const payload = req.body;
 
@@ -118,21 +120,41 @@ export const uploadEpisode = TryCatch(async (req, res, next) => {
 });
 
 export const updateEpisode = TryCatch(async (req, res, next) => {
-  // Implementation for updating an episode will go here in the future
-  sendResponse(
-    res,
-    200,
-    "Episode update functionality will be implemented in the future",
-    null,
-  );
+  const { id, title } = req.body;
+  const user = req?.user as any;
+  const file = req.file as Express.Multer.File;
+
+  const result = await updateEpisodeService(id, title, user, file);
+
+  sendResponse(res, 200, "Episode updated successfully", result);
 });
 
+export const deleteEpisode = TryCatch(async (req, res, next) => {
+  const id = req.params.id as string;
+  const result = await deleteEpisodeService(id);
+  sendResponse(res, 200, "Episode deleted successfully", result);
+});
 export const allEpisodes = TryCatch(async (req, res, next) => {
-  // Implementation for retrieving all episodes will go here in the future
   sendResponse(
     res,
     200,
     "Episode retrieval functionality will be implemented in the future",
     null,
   );
+});
+
+export const updateSeriesAdmin = TryCatch(async (req, res, next) => {
+  const { id, isPremium } = req.body;
+
+  const result = await updateSeriesAdminService(id, isPremium);
+
+  sendResponse(res, 201, "Update sereis premium status", result);
+});
+
+export const deleteSeriesAdmin = TryCatch(async (req, res, next) => {
+  const id = req.body?.id as string;
+
+  const result = await deleteSeriesAdminService(id);
+
+  sendResponse(res, 201, "Delete sereis", result);
 });

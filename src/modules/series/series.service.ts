@@ -2,6 +2,7 @@ import { deleteCloudinaryImage } from "../../config/cloudinary";
 import { prisma } from "../../lib/prisma";
 import { ISeriesPayload } from "../../types/interface/movie/interface.series";
 import { ErrorHandler } from "../../utils/errorHandler";
+import { season } from "./series.controller";
 
 export const createSeriesSevice = async (
   payload: ISeriesPayload,
@@ -370,5 +371,133 @@ export const createEpisode = async (
       videoPublicId: filename,
     },
   });
+  return result;
+};
+
+export const updateEpisodeService = async (
+  id: string,
+  title: string,
+  user: { id: string; role: string },
+
+  file: Express.Multer.File,
+) => {
+  const episode = await prisma.episode.findUnique({
+    where: { id },
+  });
+
+  if (!episode) {
+    throw new ErrorHandler("Episode not found", 404);
+  }
+
+  const season = await prisma.season.findUnique({
+    where: { id: episode.seasonId },
+  });
+
+  if (!season) {
+    throw new ErrorHandler("Season not found", 404);
+  }
+
+  const series = await prisma.series.findUnique({
+    where: { id: season.seriesId },
+  });
+
+  if (!series) {
+    throw new ErrorHandler("Series not found", 404);
+  }
+
+  const isAdmin = user.role === "ADMIN";
+  const isCreator = series.userId === user.id;
+
+  if (!isAdmin && !isCreator) {
+    throw new ErrorHandler(
+      "You don't have permission to edit this episode",
+      403,
+    );
+  }
+
+  if (file) {
+    await deleteCloudinaryImage(episode.videoPublicId);
+  }
+
+  const updatedEpisode = await prisma.episode.update({
+    where: { id: episode.id },
+    data: {
+      title: title ?? episode.title,
+      videoUrl: file.path ?? episode.videoUrl,
+      videoPublicId: file.filename,
+    },
+  });
+
+  return updatedEpisode;
+};
+
+export const deleteEpisodeService = async (id: string) => {
+  const episode = await prisma.episode.findUnique({
+    where: { id },
+  });
+  if (!episode) {
+    throw new ErrorHandler("Episode not found", 404);
+  }
+
+  await deleteCloudinaryImage(episode.videoPublicId);
+  const result = await prisma.episode.delete({
+    where: { id },
+  });
+  return result;
+};
+
+export const updateSeriesAdminService = async (
+  id: string,
+  isPremium: boolean,
+) => {
+  return await prisma.series.update({
+    where: { id },
+    data: { isPremium },
+  });
+};
+
+export const deleteSeriesAdminService = async (id: string) => {
+  const seasons = await prisma.season.findMany({
+    where: {
+      seriesId: id,
+    },
+  });
+
+  const seasonIds = seasons.map((season) => season.id);
+
+  const allEpisodes = await prisma.episode.findMany({
+    where: {
+      seasonId: { in: seasonIds },
+    },
+  });
+
+  const episodeIds = allEpisodes.map((episode) => episode.id);
+
+  const result = await prisma.$transaction(async (tx) => {
+    const deleteSeries = await tx.series.delete({
+      where: {
+        id,
+      },
+    });
+
+    const deleteAllSeason = await tx.season.deleteMany({
+      where: {
+        id: { in: seasonIds },
+      },
+    });
+
+    const deleteAllEpisodes = await tx.episode.deleteMany({
+      where: {
+        id: { in: episodeIds },
+      },
+    });
+
+    return {
+      deleteSeries,
+      deleteAllSeason,
+      deleteAllEpisodes,
+    };
+  });
+
   return result;
 };

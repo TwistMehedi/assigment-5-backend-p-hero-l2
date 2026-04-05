@@ -11,7 +11,7 @@ const router = express.Router();
 router.route("/create-checkout-session").post(isAuthenticated, checkout);
 router.route("/verify").get(isAuthenticated, verifyPayment);
 router
-  .route("/check-purchase/:id")
+  .route("/check-purchase/:itemId")
   .get(isAuthenticated, checkPurchaseMovieAndSeries);
 
 export const paymentRouter = router;

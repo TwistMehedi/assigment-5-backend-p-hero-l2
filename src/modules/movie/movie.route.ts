@@ -5,14 +5,18 @@ import {
   channel,
   channels,
   createChannel,
+  deleteCategory,
   deleteChannel,
   deleteMovie,
+  deleteMovieAdmin,
   getCategories,
   movie,
   myMovie,
   myMovies,
+  updateCategory,
   updateChannel,
   updateMovie,
+  updateMovieAdmin,
   uploadMovie,
 } from "./movie.controller";
 import { authorizeRoles, isAuthenticated } from "../../middleware/middleware";
@@ -106,4 +110,19 @@ router
   .route("/my-movies")
   .get(isAuthenticated, authorizeRoles("CREATOR"), myMovies);
 
+router
+  .route("/categorie/:id")
+  .put(isAuthenticated, authorizeRoles("ADMIN"), updateCategory);
+
+router
+  .route("/categorie/:id")
+  .delete(isAuthenticated, authorizeRoles("ADMIN"), deleteCategory);
+
+router
+  .route("/update-movie-admin/:id")
+  .put(isAuthenticated, authorizeRoles("ADMIN"), updateMovieAdmin);
+
+router
+  .route("/delete-movie-admin/:id")
+  .delete(isAuthenticated, authorizeRoles("ADMIN"), deleteMovieAdmin);
 export const movieRouter = router;

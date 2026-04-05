@@ -10,12 +10,16 @@ import {
   chennelService,
   createCategory,
   createChannelService,
+  deleteCategoryService,
   deleteChannelService,
+  deleteMovieAdminService,
   deleteMovieService,
   getChannelsService,
   // getMovieService,
   getMyMovies,
   getMyMovieService,
+  updateAdminMovieService,
+  updateCategoryService,
   updateChannelService,
   updateMovieService,
   uploadMovieService,
@@ -222,4 +226,31 @@ export const movie = TryCatch(async (req, res, next) => {
     next(new ErrorHandler("Movie not found", 400));
   }
   sendResponse(res, 200, "Movie fetched successfully", movie);
+});
+
+export const updateCategory = TryCatch(async (req, res, next) => {
+  const id = req.params.id as string;
+  console.log("Update category id", id);
+  const { name } = req.body;
+  const result = await updateCategoryService(id, name);
+  sendResponse(res, 200, "Category updated successfully", result);
+});
+
+export const deleteCategory = TryCatch(async (req, res, next) => {
+  const id = req.params.id as string;
+  const result = await deleteCategoryService(id);
+  sendResponse(res, 200, "Category deleted successfully", result);
+});
+
+export const updateMovieAdmin = TryCatch(async (req, res, next) => {
+  const id = req.params.id as string;
+  const { title, isPremium } = req.body;
+  const result = await updateAdminMovieService(id, title, isPremium);
+  sendResponse(res, 200, "Movie updated successfully", result);
+});
+
+export const deleteMovieAdmin = TryCatch(async (req, res, next) => {
+  const id = req.params.id as string;
+  const result = await deleteMovieAdminService(id);
+  sendResponse(res, 200, "Movie deleted successfully", result);
 });

@@ -386,3 +386,49 @@ export const getMyMovies = async (
     data: cleanMovies,
   };
 };
+
+export const updateCategoryService = async (id: string, name: string) => {
+  const isExist = await prisma.categories.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new Error("Category not found!");
+  }
+
+  return await prisma.categories.update({
+    where: { id: isExist.id },
+    data: { name },
+  });
+};
+
+export const deleteCategoryService = async (id: string) => {
+  return await prisma.categories.delete({
+    where: { id },
+  });
+};
+
+export const updateAdminMovieService = async (
+  id: string,
+  title: string,
+  isPremium: boolean,
+) => {
+  const isExist = await prisma.media.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new Error("Movie not found!");
+  }
+  return await prisma.media.update({
+    where: { id: isExist.id },
+    data: {
+      title,
+      isPremium,
+    },
+  });
+};
+
+export const deleteMovieAdminService = async (id: string) => {
+  return await prisma.media.delete({
+    where: { id },
+  });
+};

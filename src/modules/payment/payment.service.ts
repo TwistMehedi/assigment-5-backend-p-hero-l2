@@ -69,6 +69,8 @@ export const checkoutService = async ({
 export const verifyPaymentService = async (sessionId: string) => {
   const session = await stripe.checkout.sessions.retrieve(sessionId);
 
+  console.log("session backend", session);
+
   if (session.payment_status === "paid") {
     const { userId, itemId, itemType } = session.metadata || {};
 
@@ -91,14 +93,27 @@ export const verifyPaymentService = async (sessionId: string) => {
       };
     }
 
+    let mediaId = null;
+    let seriesId = null;
+
+    if (itemType.toUpperCase() === "MOVIE") {
+      const movie = await prisma.media.findUnique({ where: { id: itemId } });
+      if (movie) mediaId = movie.id;
+    } else if (itemType.toUpperCase() === "SERIES") {
+      const series = await prisma.series.findUnique({ where: { id: itemId } });
+      if (series) seriesId = series.id;
+    }
+
     const purchase = await prisma.purchase.create({
       data: {
         userId: userId as string,
         itemId: itemId as string,
-        itemType: itemType.toUpperCase() as PurchaseType,
+        itemType: itemType.toUpperCase() as any,
         amount: session.amount_total ? session.amount_total / 100 : 0,
         transactionId: session.id,
         status: "COMPLETED",
+        mediaId: mediaId,
+        seriesId: seriesId,
       },
     });
 
@@ -124,7 +139,27 @@ export const purChaseMovieAndSeries = async (
       itemId,
       status: "COMPLETED",
     },
+    include: {
+      media: true,
+      series: {
+        include: {
+          seasons: {
+            include: {
+              episodes: {
+                orderBy: {
+                  episodeNumber: "asc",
+                },
+              },
+            },
+            orderBy: {
+              seasonNumber: "asc",
+            },
+          },
+        },
+      },
+    },
   });
 
   return purchase;
 };
+

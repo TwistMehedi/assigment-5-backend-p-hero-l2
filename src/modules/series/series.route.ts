@@ -13,6 +13,10 @@ import {
   uploadSession,
   season,
   getSeries,
+  updateSeriesAdmin,
+  deleteSeriesAdmin,
+  updateEpisode,
+  deleteEpisode,
 } from "./series.controller";
 import upload from "../../middleware/multer";
 import { validateRequest } from "../../middleware/validateRequestZod";
@@ -97,12 +101,34 @@ router
   .route("/season/:seasonid")
   .get(isAuthenticated, authorizeRoles("CREATOR"), season);
 
-router.route("/upload-episode").post(
-  isAuthenticated,
-  authorizeRoles("CREATOR"),
-  upload.single("video"),
-  // validateRequest(createEpisodeSchema),
-  uploadEpisode,
-);
+router
+  .route("/upload-episode")
+  .post(
+    isAuthenticated,
+    authorizeRoles("CREATOR"),
+    upload.single("video"),
+    uploadEpisode,
+  );
+
+router
+  .route("/update-series-admin")
+  .patch(isAuthenticated, authorizeRoles("ADMIN"), updateSeriesAdmin);
+
+router
+  .route("/delete-series-admin")
+  .delete(isAuthenticated, authorizeRoles("ADMIN"), deleteSeriesAdmin);
+
+router
+  .route("/update-episode")
+  .put(
+    isAuthenticated,
+    authorizeRoles("ADMIN", "CREATOR"),
+    upload.single("file"),
+    updateEpisode,
+  );
+
+router
+  .route("/delete-episode/:id")
+  .delete(isAuthenticated, authorizeRoles("ADMIN", "CREATOR"), deleteEpisode);
 
 export const seriesRouter = router;

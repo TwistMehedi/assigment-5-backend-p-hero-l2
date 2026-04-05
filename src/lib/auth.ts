@@ -16,7 +16,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     env.CLIENT_URL,
     "http://localhost:3000",
-    "https://your-movie-portal.vercel.app",
+    // "https://silver-space-journey-5j45pjw55j3xqv-3000.app.github.dev",
   ],
 
   plugins: [
