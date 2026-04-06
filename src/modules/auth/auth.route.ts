@@ -4,6 +4,7 @@ import {
   forgotPassword,
   getSession,
   login,
+  logoutUser,
   otpVerify,
   registerUser,
   resetPassword,
@@ -28,5 +29,7 @@ router
   .route("/email-otp/reset-password")
   .post(validateRequest(resetPasswordSchema), resetPassword);
 router.route("/get-session").get(getSession);
+
+router.route("/logout-user").post(isAuthenticated, logoutUser);
 
 export const authRouter = router;

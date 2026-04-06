@@ -10,6 +10,7 @@ import {
   deleteMovie,
   deleteMovieAdmin,
   getCategories,
+  latestMovie,
   movie,
   myMovie,
   myMovies,
@@ -125,4 +126,6 @@ router
 router
   .route("/delete-movie-admin/:id")
   .delete(isAuthenticated, authorizeRoles("ADMIN"), deleteMovieAdmin);
+
+router.route("/latest-movies").get(latestMovie);
 export const movieRouter = router;

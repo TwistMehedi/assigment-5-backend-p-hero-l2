@@ -143,8 +143,7 @@ export const passwordChange = async (
     throw new ErrorHandler("Session not found", 404);
   }
 
-  // console.log("session eeeeee", session); // akhane cookie log korle ata ase
-  const data = await auth.api.changePassword({
+   const data = await auth.api.changePassword({
     body: {
       currentPassword,
       newPassword,
@@ -155,7 +154,7 @@ export const passwordChange = async (
     }),
   });
 
-  console.log("data", data);
+  
 
   return data;
 };

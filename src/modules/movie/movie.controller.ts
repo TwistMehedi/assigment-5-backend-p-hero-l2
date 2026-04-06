@@ -254,3 +254,33 @@ export const deleteMovieAdmin = TryCatch(async (req, res, next) => {
   const result = await deleteMovieAdminService(id);
   sendResponse(res, 200, "Movie deleted successfully", result);
 });
+
+export const latestMovie = TryCatch(async (req, res, next) => {
+  const movies = await prisma.media.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+    include: {
+      user: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
+      channels: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          purchases: true,
+        },
+      },
+    },
+  });
+
+  sendResponse(res, 200, "Latest movies with channels fetched", movies);
+});

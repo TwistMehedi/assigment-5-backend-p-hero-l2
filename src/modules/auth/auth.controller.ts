@@ -1,3 +1,4 @@
+import { env } from "../../config/envConfig";
 import { sendResponse } from "../../helper/sendResponse";
 import { auth } from "../../lib/auth";
 import { createJwtToken, createRefreshToken } from "../../lib/token";
@@ -87,4 +88,38 @@ export const getSession = TryCatch(async (req, res, next) => {
   const result = await sessionService(token);
 
   sendResponse(res, 200, "Session found", result);
+});
+
+export const logoutUser = TryCatch(async (req, res, next) => {
+  const sessionToken =
+    req.cookies["better-auth.session_token"] ||
+    req.cookies["__Secure-better-auth.session_token"];
+
+  if (sessionToken) {
+    try {
+      await auth.api.signOut({
+        headers: new Headers({
+          Authorization: `Bearer ${sessionToken}`,
+        }),
+      });
+    } catch (error) {
+      console.error("Better-Auth server-side signout failed:", error);
+    }
+  }
+
+  const isProduction = env.NODE_ENV === "production";
+  const cookieOptions: any = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    expires: new Date(0),
+    path: "/",
+  };
+
+  res.cookie("better-auth.session_token", "", cookieOptions);
+  res.cookie("__Secure-better-auth.session_token", "", cookieOptions);
+  res.cookie("token", "", cookieOptions);
+  res.cookie("refreshToken", "", cookieOptions);
+
+  sendResponse(res, 200, "User logout successfully", null);
 });
