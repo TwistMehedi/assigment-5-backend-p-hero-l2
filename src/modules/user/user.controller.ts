@@ -40,7 +40,6 @@ export const getUserDashboardData = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
   const result = await getUserDashboardService(userId);
 
-  console.log(result);
   sendResponse(
     res,
     200,

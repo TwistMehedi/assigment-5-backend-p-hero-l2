@@ -69,8 +69,6 @@ export const checkoutService = async ({
 export const verifyPaymentService = async (sessionId: string) => {
   const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-  console.log("session backend", session);
-
   if (session.payment_status === "paid") {
     const { userId, itemId, itemType } = session.metadata || {};
 

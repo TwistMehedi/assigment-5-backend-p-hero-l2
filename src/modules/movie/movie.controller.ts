@@ -205,7 +205,6 @@ export const allMovies = TryCatch(async (req, res) => {
     prisma.media.count({ where }),
   ]);
 
-  // console.log("Fetched movies:", movies);
   sendResponse(res, 200, "Movies fetched successfully", {
     movies,
     pagination: {
@@ -230,7 +229,6 @@ export const movie = TryCatch(async (req, res, next) => {
 
 export const updateCategory = TryCatch(async (req, res, next) => {
   const id = req.params.id as string;
-  console.log("Update category id", id);
   const { name } = req.body;
   const result = await updateCategoryService(id, name);
   sendResponse(res, 200, "Category updated successfully", result);

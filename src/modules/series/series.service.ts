@@ -216,8 +216,6 @@ export const getAllSeriesService = async (filters: any) => {
     prisma.series.count({ where }),
   ]);
 
-  // console.log("all series by service", result);
-
   return {
     meta: {
       page: Number(page),

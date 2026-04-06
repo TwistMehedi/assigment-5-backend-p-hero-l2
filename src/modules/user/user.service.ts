@@ -190,9 +190,22 @@ export const getPurchasedAll = async (userId: string) => {
     where: { userId },
     include: {
       media: true,
-      series: true,
+      series: {
+        include: {
+          seasons: {
+            include: {
+              episodes: {
+                orderBy: {
+        episodeNumber: 'asc'
+      }
+              },
+            },
+          },
+        },
+      },
     },
   });
+
   return result;
 };
 
@@ -364,5 +377,3 @@ export const deleteUserService = async (id: string) => {
     return deletedUser;
   });
 };
-
- 
