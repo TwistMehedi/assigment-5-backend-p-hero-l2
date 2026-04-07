@@ -73,7 +73,6 @@ router
   .route("/channel/:id")
   .get(isAuthenticated, authorizeRoles("CREATOR"), channel);
 
-// movie
 router.route("/upload-movie").post(
   isAuthenticated,
   authorizeRoles("CREATOR"),

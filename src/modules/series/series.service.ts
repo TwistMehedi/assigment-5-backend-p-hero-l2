@@ -189,14 +189,10 @@ export const getAllSeriesService = async (filters: any) => {
       take,
       include: {
         seasons: {
-          orderBy: {
-            seasonNumber: "asc",
-          },
+          orderBy: { seasonNumber: "asc" },
           include: {
             episodes: {
-              orderBy: {
-                episodeNumber: "asc",
-              },
+              orderBy: { episodeNumber: "asc" },
               select: {
                 id: true,
                 title: true,
@@ -207,14 +203,33 @@ export const getAllSeriesService = async (filters: any) => {
             },
           },
         },
-        user: {
-          select: { name: true },
+        user: { select: { name: true } },
+        reviews: {
+          where: { parentId: null },
+          select: { rating: true },
         },
       },
       orderBy: { createdAt: "desc" },
     }),
     prisma.series.count({ where }),
   ]);
+
+  const seriesWithRating = result.map((series) => {
+    const reviews = series.reviews || [];
+    const totalReviews = reviews.length;
+
+    const sumRating = reviews.reduce((acc, rev) => acc + (rev.rating || 0), 0);
+    const averageRating =
+      totalReviews > 0 ? parseFloat((sumRating / totalReviews).toFixed(1)) : 0;
+
+    const { reviews: _, ...seriesData } = series;
+
+    return {
+      ...seriesData,
+      averageRating,
+      totalReviews,
+    };
+  });
 
   return {
     meta: {
@@ -223,7 +238,7 @@ export const getAllSeriesService = async (filters: any) => {
       total,
       totalPage: Math.ceil(total / take),
     },
-    data: result,
+    data: seriesWithRating,
   };
 };
 
@@ -245,10 +260,42 @@ export const getSeriesServis = async (id: string) => {
           },
         },
       },
+      reviews: {
+        where: {
+          parentId: null,
+        },
+        include: {
+          user: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+        },
+      },
     },
   });
 
-  return series;
+  if (!series) return null;
+
+  const reviews = series.reviews || [];
+  const totalReviews = reviews.length;
+
+  const totalRatingSum = reviews.reduce(
+    (acc, curr) => acc + (curr.rating || 0),
+    0,
+  );
+
+  const averageRating =
+    totalReviews > 0
+      ? parseFloat((totalRatingSum / totalReviews).toFixed(1))
+      : 0;
+
+  return {
+    ...series,
+    averageRating,
+    totalReviews,
+  };
 };
 
 export const createSession = async (

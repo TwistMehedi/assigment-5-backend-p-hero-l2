@@ -21,9 +21,7 @@ import {
 import upload from "../../middleware/multer";
 import { validateRequest } from "../../middleware/validateRequestZod";
 import {
-  createEpisodeSchema,
   createSeriesSchema,
-  createSessionSchema,
   updateSeriesSchema,
   updateSessionSchema,
 } from "../../types/zod/series/schema.series";

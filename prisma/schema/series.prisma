@@ -1,9 +1,11 @@
 model Series {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  director    String?
-  cast        String[]
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  director      String?
+  cast          String[]
+  averageRating Float?   @default(0.0)
+  totalReviews  Int?     @default(0)
 
   genre       String
   releaseDate DateTime

@@ -217,14 +217,47 @@ export const allMovies = TryCatch(async (req, res) => {
 });
 
 export const movie = TryCatch(async (req, res, next) => {
-  const id = req.params.id as string;
+  const id = req.params?.id as string;
+
   const movie = await prisma.media.findFirst({
     where: { id },
+    include: {
+      reviews: {
+        where: { parentId: null },
+        include: {
+          user: { select: { name: true, image: true } },
+        },
+      },
+      _count: {
+        select: { purchases: true },
+      },
+    },
   });
+
   if (!movie) {
-    next(new ErrorHandler("Movie not found", 400));
+    return next(new ErrorHandler("Movie not found", 400));
   }
-  sendResponse(res, 200, "Movie fetched successfully", movie);
+
+  const reviews = movie.reviews || [];
+  const totalReviews = reviews.length;
+
+  const totalRatingSum = reviews.reduce(
+    (acc, curr) => acc + (curr.rating || 0),
+    0,
+  );
+
+  const averageRating =
+    totalReviews > 0
+      ? parseFloat((totalRatingSum / totalReviews).toFixed(1))
+      : 0;
+
+  const movieWithRating = {
+    ...movie,
+    averageRating,
+    totalReviews,
+  };
+
+  sendResponse(res, 200, "Movie fetched successfully", movieWithRating);
 });
 
 export const updateCategory = TryCatch(async (req, res, next) => {

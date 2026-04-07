@@ -1,20 +1,21 @@
 model Review {
-  id         String       @id @default(uuid())
+  id         String   @id @default(uuid())
   rating     Int
-  content    String       @db.Text
-  hasSpoiler Boolean      @default(false)
-  status     ReviewStatus @default(PENDING)
-  tags       String[]
-  createdAt  DateTime     @default(now())
+  content    String   @db.Text
+  hasSpoiler Boolean? @default(false)
+  createdAt  DateTime @default(now())
 
-  userId  String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mediaId String
-  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  seriesId String
-  series   Series  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId  String?
+  media    Media?  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  seriesId String?
+  series   Series? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
+  parentId String?
+  parent   Review?  @relation("ReviewReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Review[] @relation("ReviewReplies")
 
-  comments Comment[]
   likes    ReviewLike[]
+  comments Comment[]
 }

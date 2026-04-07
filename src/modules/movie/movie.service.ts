@@ -7,9 +7,12 @@ export const createCategory = async (
   payload: { name: string },
   userId: string,
 ) => {
+  const formattedName = payload.name.trim().toUpperCase();
+
   const categoryName = await prisma.categories.findFirst({
     where: {
-      name: payload.name,
+      name: formattedName,
+      mode: "insensitive",
     },
   });
 
@@ -18,7 +21,7 @@ export const createCategory = async (
   }
 
   const category = await prisma.categories.create({
-    data: { name: payload.name, userId },
+    data: { name: formattedName, userId },
   });
   if (!category) {
     throw new ErrorHandler("Category not created", 400);
