@@ -50,8 +50,15 @@ export const login = TryCatch(async (req, res, next) => {
 
 export const changePassword = TryCatch(async (req, res, next) => {
   const payload = req.body;
-  const sessionToken = req.cookies["better-auth.session_token"];
 
+  const rawToken =
+    req.cookies["better-auth.session_token"] ||
+    req.cookies["__Secure-better-auth.session_token"] ||
+    req.headers.authorization?.split(" ")[1];
+
+  const sessionToken = rawToken.includes(".")
+    ? rawToken.split(".")[0]
+    : rawToken;
   const result = await passwordChange(payload, sessionToken);
 
   sendResponse(res, 200, "Password changed successfully", result);
@@ -122,4 +129,36 @@ export const logoutUser = TryCatch(async (req, res, next) => {
   res.cookie("refreshToken", "", cookieOptions);
 
   sendResponse(res, 200, "User logout successfully", null);
+});
+
+export const credential = TryCatch(async (req, res, next) => {
+  const payload = req.body;
+
+  if (!payload?.user) {
+    return next(new ErrorHandler("Invalid social session data", 400));
+  }
+
+  const userPayload = {
+    id: payload.user.id,
+    email: payload.user.email,
+    role: payload.user.role || "USER",
+  };
+
+  const createToken = await createJwtToken(userPayload);
+  const refreshToken = await createRefreshToken(userPayload);
+  const sessionToken = payload?.session?.token;
+
+  const responseData = {
+    user: {
+      ...payload.user,
+      hasPassword: !!payload.user.hasPassword,
+    },
+    session: payload.session,
+  };
+
+  sendResponse(res, 200, "User login successfully", responseData, {
+    token: createToken,
+    refreshToken,
+    sessionToken,
+  });
 });

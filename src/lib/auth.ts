@@ -61,6 +61,12 @@ export const auth = betterAuth({
         required: true,
         defaultValue: UserStatus.ACTIVE,
       },
+
+      hasPassword: {
+        type: "boolean",
+        required: true,
+        defaultValue: false,
+      },
     },
   },
 

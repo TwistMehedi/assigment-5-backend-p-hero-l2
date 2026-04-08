@@ -8,6 +8,7 @@ import {
   otpVerify,
   registerUser,
   resetPassword,
+  credential,
 } from "./auth.controller";
 import { isAuthenticated } from "../../middleware/middleware";
 import { registerSchema } from "../../types/zod/auth/zod.register";
@@ -31,5 +32,7 @@ router
 router.route("/get-session").get(getSession);
 
 router.route("/logout-user").post(isAuthenticated, logoutUser);
+
+router.route("/social-login").post(credential);
 
 export const authRouter = router;

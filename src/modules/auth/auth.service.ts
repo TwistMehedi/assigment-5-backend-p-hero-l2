@@ -20,17 +20,6 @@ export const registerService = async (payload: IUser) => {
       throw new ErrorHandler("User not created", 400);
     }
 
-    // const session = await prisma.session.findFirst({
-    //   where: {
-    //     userId: data.user.id,
-    //   },
-    // });
-
-    // console.log(session);
-    // if (!session) {
-    //   throw new ErrorHandler("sessionnot found", 400);
-    // }
-
     await auth.api.sendVerificationOTP({
       body: {
         email,
@@ -40,8 +29,6 @@ export const registerService = async (payload: IUser) => {
 
     return data;
   } catch (error: any) {
-    console.log("User created error", error);
-
     try {
       await prisma.user.delete({ where: { email } });
     } catch (err: any) {
@@ -80,13 +67,12 @@ export const verifyOtp = async (payload: { email: string; otp: string }) => {
       },
       data: {
         emailVerified: true,
+        hasPassword: true,
       },
     });
 
     return { confirmUser };
   } catch (error) {
-    console.log("OTP error", error);
-
     if (error instanceof ErrorHandler) {
       throw error;
     }
@@ -127,7 +113,7 @@ export const loginUser = async (payload: {
 export const passwordChange = async (
   payload: {
     newPassword: string;
-    currentPassword: string;
+    currentPassword?: string;
   },
   sessionToken: string,
 ) => {
@@ -143,18 +129,44 @@ export const passwordChange = async (
     throw new ErrorHandler("Session not found", 404);
   }
 
-   const data = await auth.api.changePassword({
-    body: {
-      currentPassword,
-      newPassword,
-      revokeOtherSessions: true,
-    },
-    headers: new Headers({
-      Authorization: `Bearer ${sessionToken}`,
-    }),
-  });
+  if (
+    session.user.hasPassword &&
+    currentPassword &&
+    newPassword === currentPassword
+  ) {
+    throw new ErrorHandler(
+      "New password can't be same as current password",
+      400,
+    );
+  }
 
-  
+  let data;
+
+  if (!session.user.hasPassword) {
+    data = await auth.api.setPassword({
+      body: {
+        newPassword,
+      },
+      headers: new Headers({
+        Authorization: `Bearer ${sessionToken}`,
+      }),
+    });
+  } else {
+    if (!currentPassword) {
+      throw new ErrorHandler("Current password is required", 400);
+    }
+
+    data = await auth.api.changePassword({
+      body: {
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: true,
+      },
+      headers: new Headers({
+        Authorization: `Bearer ${sessionToken}`,
+      }),
+    });
+  }
 
   return data;
 };
@@ -210,7 +222,7 @@ export const sessionService = async (token: string) => {
     },
     include: { user: true },
   });
-  
+
   if (!session) {
     throw new Error("Session not found");
   }
