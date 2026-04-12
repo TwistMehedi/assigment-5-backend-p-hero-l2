@@ -132,6 +132,7 @@ export const logoutUser = TryCatch(async (req, res, next) => {
   sendResponse(res, 200, "User logout successfully", null);
 });
 
+
 export const credential = TryCatch(async (req, res, next) => {
   const payload = req.body;
 
