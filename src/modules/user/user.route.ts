@@ -10,6 +10,7 @@ import {
   getAllUsersForAdmin,
   updateUserRole,
   deleteUser,
+  watchLetter,
 } from "./user.controller";
 import { authorizeRoles, isAuthenticated } from "../../middleware/middleware";
 
@@ -53,5 +54,7 @@ router
 router
   .route("/users/:id")
   .delete(isAuthenticated, authorizeRoles("ADMIN"), deleteUser);
+
+router.route("watch-letter").post(isAuthenticated, watchLetter);
 
 export const userRouter = router;

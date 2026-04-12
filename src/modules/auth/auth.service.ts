@@ -32,7 +32,6 @@ export const registerService = async (payload: IUser) => {
     try {
       await prisma.user.delete({ where: { email } });
     } catch (err: any) {
-      console.log("Rollback failed", err);
       throw new ErrorHandler(err.message, 500);
     }
     throw new ErrorHandler(error.message, 500);
@@ -104,8 +103,6 @@ export const loginUser = async (payload: {
 
     return data;
   } catch (error) {
-    console.log("login error", error);
-
     throw new ErrorHandler("Invalid email or password", 400);
   }
 };
@@ -150,6 +147,15 @@ export const passwordChange = async (
       headers: new Headers({
         Authorization: `Bearer ${sessionToken}`,
       }),
+    });
+
+    await prisma.user.update({
+      where: {
+        id: session.user.id,
+      },
+      data: {
+        hasPassword: true,
+      },
     });
   } else {
     if (!currentPassword) {

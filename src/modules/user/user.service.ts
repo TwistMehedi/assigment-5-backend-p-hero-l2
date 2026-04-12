@@ -196,8 +196,8 @@ export const getPurchasedAll = async (userId: string) => {
             include: {
               episodes: {
                 orderBy: {
-        episodeNumber: 'asc'
-      }
+                  episodeNumber: "asc",
+                },
               },
             },
           },
@@ -376,4 +376,14 @@ export const deleteUserService = async (id: string) => {
 
     return deletedUser;
   });
+};
+
+export const watchLetterService = async (
+  userId: string,
+  payload: {
+    mediaId?: string;
+    seriesId?: string;
+  },
+) => {
+  console.log("watch letter clicked", "userId:", userId, "payload:", payload);
 };

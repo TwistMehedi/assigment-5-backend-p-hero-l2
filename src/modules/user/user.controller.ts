@@ -11,6 +11,7 @@ import {
   getAllUserService,
   updateUserRoleService,
   deleteUserService,
+  watchLetterService,
 } from "./user.service";
 
 export const getAdminDashboardData = TryCatch(async (req, res, next) => {
@@ -100,4 +101,10 @@ export const deleteUser = TryCatch(async (req, res) => {
   const id = req.params.id as string;
   await deleteUserService(id);
   sendResponse(res, 200, "User deleted successfully", null);
+});
+
+export const watchLetter = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const result = await watchLetterService(userId, req.body);
+  sendResponse(res, 201, "Watch Letter added successfully", result);
 });

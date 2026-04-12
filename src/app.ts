@@ -15,6 +15,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -24,8 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: env.CLIENT_URL || "http://localhost:3000",
-    // "https://silver-space-journey-5j45pjw55j3xqv-3000.app.github.dev",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
   }),
 );
 app.all("/api/auth/*splat", toNodeHandler(auth));

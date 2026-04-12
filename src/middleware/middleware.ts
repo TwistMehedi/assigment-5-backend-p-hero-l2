@@ -14,11 +14,13 @@ export const isAuthenticated = async (
   try {
     const sessionTokenRaw =
       req.cookies["better-auth.session_token"] ||
-      req.cookies["__Secure-better-auth.session_token"];
+      req.cookies["__Secure-better-auth.session_token"] ||
+      req.cookies["session_token"];
 
     const sessionDataRaw =
       req.cookies["better-auth.session_data"] ||
-      req.cookies["__Secure-better-auth.session_data"];
+      req.cookies["__Secure-better-auth.session_data"] ||
+      req.cookies["session_token"];
 
     let sessionToken = "";
 
@@ -43,8 +45,8 @@ export const isAuthenticated = async (
       }
     }
 
+    console.log("sessionToken middleware backend", sessionToken);
     if (!sessionToken) {
-      // console.log("Available Cookies:", req.cookies);
       return next(new ErrorHandler("Please login first", 401));
     }
 

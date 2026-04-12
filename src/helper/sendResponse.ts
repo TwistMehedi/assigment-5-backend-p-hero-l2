@@ -36,8 +36,8 @@ export const sendResponse = <T>(
     res.cookie("better-auth.session_token", cookies.sessionToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: env.NODE_ENV ? "none" : "lax",
     });
   }
 

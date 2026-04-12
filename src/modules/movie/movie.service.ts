@@ -12,7 +12,6 @@ export const createCategory = async (
   const categoryName = await prisma.categories.findFirst({
     where: {
       name: formattedName,
-      mode: "insensitive",
     },
   });
 

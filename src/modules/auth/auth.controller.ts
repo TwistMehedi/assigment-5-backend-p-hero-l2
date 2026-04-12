@@ -54,7 +54,8 @@ export const changePassword = TryCatch(async (req, res, next) => {
   const rawToken =
     req.cookies["better-auth.session_token"] ||
     req.cookies["__Secure-better-auth.session_token"] ||
-    req.headers.authorization?.split(" ")[1];
+    req.headers.authorization?.split(" ")[1] ||
+    req.cookies["session_token"];
 
   const sessionToken = rawToken.includes(".")
     ? rawToken.split(".")[0]

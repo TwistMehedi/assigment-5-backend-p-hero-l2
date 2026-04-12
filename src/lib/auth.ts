@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { bearer, emailOTP } from "better-auth/plugins";
+import { bearer, emailOTP, oAuthProxy } from "better-auth/plugins";
 import { sendMail } from "../helper/sendMail";
 import { Role, UserStatus } from "../generated/prisma";
 import { emailMessage, forgotMessage } from "../helper/mailText";
@@ -12,12 +12,8 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  baseURL: env.BETTER_AUTH_URL,
-  trustedOrigins: [
-    env.CLIENT_URL,
-    "http://localhost:3000",
-    // "https://silver-space-journey-5j45pjw55j3xqv-3000.app.github.dev",
-  ],
+  baseURL: env.CLIENT_URL,
+  trustedOrigins: [env.CLIENT_URL, "http://localhost:3000"],
 
   plugins: [
     bearer(),
@@ -32,6 +28,7 @@ export const auth = betterAuth({
         }
       },
     }),
+    oAuthProxy(),
   ],
 
   emailAndPassword: {
@@ -71,22 +68,27 @@ export const auth = betterAuth({
   },
 
   advanced: {
+    cookiePrefix: "better-auth",
     useSecureCookies: true,
     cookies: {
       state: {
+        name: "better-auth.session_token",
         attributes: {
-          sameSite: "lax",
+          sameSite: "none",
           secure: true,
           httpOnly: true,
           path: "/",
         },
       },
-      sessionToken: {
+      session_token: {
+        name: "better-auth.session_token",
         attributes: {
-          sameSite: "lax",
+          sameSite: "none",
           secure: true,
           httpOnly: true,
           path: "/",
+          domain:
+            process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
         },
       },
     },
