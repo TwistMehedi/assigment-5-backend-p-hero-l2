@@ -71,17 +71,8 @@ export const auth = betterAuth({
     cookiePrefix: "better-auth",
     useSecureCookies: true,
     cookies: {
-      state: {
-        name: "better-auth.session_token",
-        attributes: {
-          sameSite: "none",
-          secure: true,
-          httpOnly: true,
-          path: "/",
-        },
-      },
       session_token: {
-        name: "better-auth.session_token",
+        name: "session_token",
         attributes: {
           sameSite: "none",
           secure: true,
