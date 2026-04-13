@@ -87,8 +87,6 @@ export const auth = betterAuth({
           secure: true,
           httpOnly: true,
           path: "/",
-          domain:
-            process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
         },
       },
     },
@@ -98,7 +96,6 @@ export const auth = betterAuth({
     google: {
       clientId: env.CLIENT_ID,
       clientSecret: env.CLIENT_SECRET,
-      redirectUri: `${env.BETTER_AUTH_URL}/api/auth/callback/google`,
     },
   },
 });
