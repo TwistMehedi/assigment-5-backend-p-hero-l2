@@ -1,4 +1,6 @@
+import { th } from "zod/locales";
 import { prisma } from "../../lib/prisma";
+import { ErrorHandler } from "../../utils/errorHandler";
 
 export const getAdminDashboardService = async () => {
   const [
@@ -385,5 +387,79 @@ export const watchLetterService = async (
     seriesId?: string;
   },
 ) => {
-  console.log("watch letter clicked", "userId:", userId, "payload:", payload);
+  const { mediaId, seriesId } = payload;
+  const whereClause: any = {
+    userId: userId,
+    mediaId: mediaId || null,
+    seriesId: seriesId || null,
+  };
+
+  if (mediaId) whereClause.mediaId = mediaId;
+  if (seriesId) whereClause.seriesId = seriesId;
+
+  const existingEntry = await prisma.watchlist.findFirst({
+    where: whereClause,
+  });
+
+  if (existingEntry) {
+    throw new Error("Item already in watchlist");
+  }
+
+  const newEntry = await prisma.watchlist.create({
+    data: whereClause as any,
+  });
+
+  return newEntry;
+};
+
+export const getWatchLetterHubs = async (userId: string) => {
+  const hubs = await prisma.watchlist.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      media: true,
+      series: {
+        include: {
+          seasons: {
+            include: {
+              episodes: {
+                orderBy: {
+                  episodeNumber: "asc",
+                },
+              },
+            },
+            orderBy: {
+              seasonNumber: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
+  return hubs;
+};
+
+export const getDeleteService = async (userId: string, id: string) => {
+  const watch = await prisma.watchlist.findFirst({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!watch) {
+    throw new ErrorHandler("Watch id not found", 404);
+  }
+  const deleteWatch = await prisma.watchlist.delete({
+    where: {
+      id,
+    },
+  });
+
+  if (!deleteWatch) {
+    throw new ErrorHandler("Watch id not found", 404);
+  }
+
+  return deleteWatch;
 };

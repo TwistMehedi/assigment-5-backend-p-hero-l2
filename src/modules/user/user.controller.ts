@@ -12,6 +12,8 @@ import {
   updateUserRoleService,
   deleteUserService,
   watchLetterService,
+  getWatchLetterHubs,
+  getDeleteService,
 } from "./user.service";
 
 export const getAdminDashboardData = TryCatch(async (req, res, next) => {
@@ -106,5 +108,19 @@ export const deleteUser = TryCatch(async (req, res) => {
 export const watchLetter = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
   const result = await watchLetterService(userId, req.body);
+
   sendResponse(res, 201, "Watch Letter added successfully", result);
+});
+
+export const watchLetterHubs = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const result = await getWatchLetterHubs(userId);
+  sendResponse(res, 200, "Movies and Serieses Goted", result);
+});
+
+export const deleteWatchLeter = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const id = req.query?.id as string;
+  const result = await getDeleteService(userId, id);
+  sendResponse(res, 201, "Watch Unsaved", result);
 });

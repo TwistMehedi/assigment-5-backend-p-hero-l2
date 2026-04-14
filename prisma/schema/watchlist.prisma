@@ -2,12 +2,12 @@ model Watchlist {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  userId  String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mediaId String
-  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  seriesId String
-  series   Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId  String?
+  media    Media?  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  seriesId String?
+  series   Series? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, mediaId])
+  @@unique([userId, mediaId, seriesId])
 }
