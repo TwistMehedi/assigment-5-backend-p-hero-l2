@@ -1,9 +1,10 @@
 model Review {
-  id         String   @id @default(uuid())
+  id         String        @id @default(uuid())
   rating     Int
-  content    String   @db.Text
-  hasSpoiler Boolean? @default(false)
-  createdAt  DateTime @default(now())
+  content    String        @db.Text
+  tags       String[]      
+  status     CommentStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
 
   userId   String
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)

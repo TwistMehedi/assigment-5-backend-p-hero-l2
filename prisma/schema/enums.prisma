@@ -43,3 +43,9 @@ enum PurchaseStatus {
     FAILED
     REFUNDED
 }
+
+enum CommentStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}

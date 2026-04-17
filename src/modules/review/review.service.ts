@@ -6,13 +6,13 @@ export const createReviewService = async (
   payload: {
     rating: number;
     content: string;
-    hasSpoiler?: boolean;
+    tags?: string[];
     mediaId?: string;
     seriesId?: string;
     parentId?: string;
   },
 ) => {
-  const { rating, content, hasSpoiler, mediaId, seriesId, parentId } = payload;
+  const { rating, content, tags, mediaId, seriesId, parentId } = payload;
 
   if (!parentId && !mediaId && !seriesId) {
     throw new ErrorHandler(
@@ -24,7 +24,7 @@ export const createReviewService = async (
   let reviewData: any = {
     rating: parentId ? 0 : rating,
     content,
-    hasSpoiler: hasSpoiler ?? false,
+    tags: tags ?? [],
     userId,
   };
 
@@ -84,4 +84,42 @@ export const deleteReviewService = async (id: string, userId: string) => {
   if (review.userId !== userId) throw new ErrorHandler("Unauthorized", 403);
 
   return await prisma.review.delete({ where: { id } });
+};
+
+export const getAllReviewsForAdmin = async () => {
+  const reviews = await prisma.review.findMany({
+    include: {
+      user: { select: { name: true } },
+      media: { select: { title: true } },
+      series: { select: { title: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return reviews;
+};
+
+export const updateReviewStatusService = async (
+  id: string,
+  status: "APPROVED" | "PENDING" | "REJECTED",
+) => {
+  const review = await prisma.review.findUnique({ where: { id } });
+
+  if (!review) throw new ErrorHandler("Review not found", 404);
+  const updatedReview = await prisma.review.update({
+    where: { id },
+    data: { status },
+  });
+  return updatedReview;
+};
+
+export const myReviewsService = async (userId: string) => {
+  const reviews = await prisma.review.findMany({
+    where: { userId },
+    include: {
+      media: { select: { title: true } },
+      series: { select: { title: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return reviews;
 };

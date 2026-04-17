@@ -1,10 +1,22 @@
 model Comment {
-  id        String   @id @default(uuid())
-  text      String   @db.Text
-  createdAt DateTime @default(now())
+  id            String        @id @default(uuid())
+  text          String        @db.Text
+  createdAt     DateTime      @default(now())
+  commentStatus CommentStatus @default(PENDING)
 
   userId   String
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviewId String
   review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  mediaId String?
+  // media   Media?  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  // seriesId   String?
+  // series Series? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  // @@index([seriesId])
+
+  @@index([userId])
+  @@index([reviewId])
+  @@index([mediaId])
 }
